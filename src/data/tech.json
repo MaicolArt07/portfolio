@@ -1,0 +1,60 @@
+{
+  "categories": [
+    {
+      "title": "Backend",
+      "skills": [
+        { "name": "PHP", "level": 3, "icon": "simple-icons:php" },
+        { "name": "Laravel", "level": 3, "icon": "simple-icons:laravel" },
+        { "name": "Livewire", "level": 3, "icon": "simple-icons:livewire" },
+        { "name": "Yii2", "level": 2, "icon": "simple-icons:yii" },
+        { "name": "CodeIgniter", "level": 2, "icon": "simple-icons:codeigniter" },
+        { "name": "jQuery", "level": 3, "icon": "simple-icons:jquery" }
+      ]
+    },
+    {
+      "title": "Frontend",
+      "skills": [
+        { "name": "HTML", "level": 3, "icon": "skill-icons:html" },
+        { "name": "CSS", "level": 3, "icon": "skill-icons:css" },
+        { "name": "JavaScript", "level": 3, "icon": "skill-icons:javascript" },
+        { "name": "Bootstrap", "level": 3, "icon": "skill-icons:bootstrap" },
+        { "name": "React", "level": 2, "icon": "skill-icons:react-dark" },
+        { "name": "Astro", "level": 2, "icon": "skill-icons:astro" }
+      ]
+    },
+    {
+      "title": "CMS & E-commerce",
+      "skills": [
+        { "name": "WordPress", "level": 2, "icon": "simple-icons:wordpress" },
+        { "name": "Joomla", "level": 2, "icon": "simple-icons:joomla" },
+        { "name": "BigCommerce", "level": 2, "icon": "simple-icons:bigcommerce" }
+      ]
+    },
+    {
+      "title": "Base de Datos",
+      "skills": [
+        { "name": "MySQL", "level": 3, "icon": "skill-icons:mysql-dark" },
+        { "name": "SQL Server", "level": 3, "icon": "simple-icons:microsoftsqlserver" },
+        { "name": "PostgreSQL", "level": 2, "icon": "skill-icons:postgresql-dark" },
+        { "name": "Oracle", "level": 2, "icon": "simple-icons:oracle" }
+      ]
+    },
+    {
+      "title": "Herramientas",
+      "skills": [
+        { "name": "Git", "level": 3, "icon": "skill-icons:git" },
+        { "name": "cPanel", "level": 2, "icon": "simple-icons:cpanel" },
+        { "name": "Asana", "level": 2, "icon": "simple-icons:asana" },
+        { "name": "Excel", "level": 3, "icon": "vscode-icons:file-type-excel" },
+        { "name": "Word", "level": 3, "icon": "vscode-icons:file-type-word" },
+        { "name": "PowerPoint", "level": 3, "icon": "vscode-icons:file-type-powerpoint" }
+      ]
+    },
+    {
+      "title": "IA & Automatización",
+      "skills": [
+        { "name": "Chat Bot IA", "level": 2, "icon": "mdi:robot" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+---
+import { Icon } from 'astro-icon/components';
+import localData from '../data/home.json';
+
+const emailSocial = localData.socials.find((s) => s.name === 'Email');
+const contactEmail = emailSocial ? emailSocial.url.replace('mailto:', '') : '';
+---
+
+<section id="contact" class="section-container">
+  <div class="container mx-auto">
+    <div class="space-y-12">
+      <div class="contact-header opacity-0 mb-16">
+        <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
+            <span class="text-accent">/</span> Contacto
+          </h2>
+        <p class="text-subtext font-body text-sm max-w-md">
+          Estoy abierto a nuevos proyectos y oportunidades. Escríbeme.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <form id="contact-form" data-recipient={contactEmail} class="contact-form opacity-0 bg-accent/5 border border-accent/10 rounded-2xl p-6 md:p-8 backdrop-blur-sm space-y-5">
+          <div>
+            <label for="contact-name" class="block text-subtext text-xs uppercase tracking-wider mb-2">Nombre</label>
+            <input
+              type="text"
+              id="contact-name"
+              name="name"
+              required
+              class="w-full bg-maintext/5 border border-maintext/15 rounded-xl px-4 py-3 text-maintext font-body text-sm focus:outline-none focus:border-accent/50 transition-colors"
+              placeholder="Tu nombre"
+            />
+          </div>
+          <div>
+            <label for="contact-email" class="block text-subtext text-xs uppercase tracking-wider mb-2">Email</label>
+            <input
+              type="email"
+              id="contact-email"
+              name="email"
+              required
+              class="w-full bg-maintext/5 border border-maintext/15 rounded-xl px-4 py-3 text-maintext font-body text-sm focus:outline-none focus:border-accent/50 transition-colors"
+              placeholder="tu@email.com"
+            />
+          </div>
+          <div>
+            <label for="contact-message" class="block text-subtext text-xs uppercase tracking-wider mb-2">Mensaje</label>
+            <textarea
+              id="contact-message"
+              name="message"
+              required
+              rows="4"
+              class="w-full bg-maintext/5 border border-maintext/15 rounded-xl px-4 py-3 text-maintext font-body text-sm focus:outline-none focus:border-accent/50 transition-colors resize-none"
+              placeholder="Cuéntame sobre tu proyecto..."
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="group relative w-full inline-flex items-center justify-center gap-2 px-8 py-3 bg-accent/10 border border-accent/50 rounded-full text-maintext font-body font-medium text-sm transition-all duration-300 hover:bg-accent/20 hover:scale-[1.02]"
+          >
+            <Icon name="mdi:send" class="w-4 h-4" />
+            Enviar mensaje
+          </button>
+        </form>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-center">
+        {localData.socials
+        .filter((social) => social.showInContact && social.url && social.url !== "#" && social.url !== "")
+        .map((social) => (
+          <!-- Added 'contact-card' and 'opacity-0' here -->
+          <a 
+            href={social.url} 
+            target="_blank" 
+            class="contact-card opacity-0 group p-8 bg-accent/5 border border-accent/10 rounded-2xl hover:border-accent/40 hover:bg-accent/10 transition-all duration-300"
+          >
+            <Icon 
+              name={social.icon} 
+              class="w-10 h-10 text-accent mb-4 mx-auto group-hover:scale-110 transition-transform" 
+            />
+            <h3 class="text-maintext font-bold mb-1">{social.name}</h3>
+            <p class="text-subtext text-xs truncate px-2">
+              {social.url.replace('https://', '').replace('mailto:', '').replace('wa.me/', '+')}
+            </p>
+          </a>
+        ))}
+        </div>
+      </div>
+
+      <!-- /* FOOTER */ -->
+      <div class="contact-footer opacity-0 pt-20 border-t border-white/5">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <p class="text-subtext text-sm font-body order-2 md:order-1">
+            {localData.name} © 2026
+          </p>
+          <div class="flex items-center flex-wrap justify-center gap-3 text-subtext text-xs font-body order-1 md:order-2">
+            <span>Built using </span>
+            <a 
+              href="https://astro.build/themes/details/career-portfolio-data-driven-astro-ssg/" 
+              target="_blank" 
+              class="text-maintext hover:text-accent transition-colors underline decoration-white/30 underline-offset-4 hover:decoration-accent"
+            >
+              Career Portfolio Theme
+            </a>
+            <span class="text-subtext hidden sm:inline">•</span>
+            <div class="flex gap-4">
+              <a href="https://astro.build" target="_blank" class="hover:text-accent transition-colors flex items-center gap-1.5 group">
+                <Icon name="skill-icons:astro" class="w-4 h-4 group-hover:drop-shadow-[0_0_5px_var(--color-accent)]" />
+                <span>Astro</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Header & Footer Initial State */
+  .contact-header,
+  .contact-footer {
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Cards Initial State */
+  .contact-card,
+  .contact-form {
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Shared Revealed State */
+  .contact-header.reveal,
+  .contact-card.reveal,
+  .contact-form.reveal,
+  .contact-footer.reveal {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1);
+  }
+</style>
+
+<script>
+  const revealContact = () => {
+    const header = document.querySelector('.contact-header');
+    const footer = document.querySelector('.contact-footer');
+    const form = document.querySelector('.contact-form');
+    const cards = document.querySelectorAll('.contact-card');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const target = entry.target as HTMLElement;
+
+          if (target.classList.contains('contact-card')) {
+            const index = Array.from(cards).indexOf(target);
+            // Stagger effect for the 4-column grid
+            setTimeout(() => {
+              target.classList.add('reveal');
+            }, (index % 4) * 150);
+          } else {
+            // Header, Form and Footer reveal immediately
+            target.classList.add('reveal');
+          }
+
+          observer.unobserve(target);
+        }
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: '0px 0px -10px 0px'
+    });
+
+    if (header) observer.observe(header);
+    if (footer) observer.observe(footer);
+    if (form) observer.observe(form);
+    cards.forEach(card => observer.observe(card));
+  }
+
+  // Runs on initial load
+  window.addEventListener('load', revealContact);
+
+  // Support for Astro View Transitions
+  document.addEventListener('astro:after-swap', revealContact);
+
+  // Contact form -> opens the user's email client with a prefilled message
+  function initContactForm() {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form) return;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const recipient = form.dataset.recipient || '';
+      const name = (document.getElementById('contact-name') as HTMLInputElement)?.value || '';
+      const email = (document.getElementById('contact-email') as HTMLInputElement)?.value || '';
+      const message = (document.getElementById('contact-message') as HTMLTextAreaElement)?.value || '';
+
+      const subject = encodeURIComponent(`Contacto desde el portfolio - ${name}`);
+      const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+
+      window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+    });
+  }
+
+  initContactForm();
+  document.addEventListener('astro:after-swap', initContactForm);
+</script>

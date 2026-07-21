@@ -1,0 +1,73 @@
+---
+import { Icon } from 'astro-icon/components';
+import educationData from '../data/education.json';
+---
+
+<section id="education" class="section-container max-w-4xl mx-auto">
+  <div class="container mx-auto">
+    <div class="education-header mb-12">
+      <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
+        <span class="text-accent">/</span> Educación
+      </h2>
+      <p class="text-subtext font-body text-sm max-w-md">
+        Formación académica
+      </p>
+    </div>
+
+    <div class="relative space-y-6">
+      <div class="absolute left-5 top-2 bottom-2 w-0.5 bg-linear-to-b from-accent via-white/10 to-transparent"></div>
+
+      {educationData.map((item, index) => (
+        <div class="education-card relative pl-16">
+          <div class="absolute left-0 top-0 z-10 w-10 h-10 rounded-full bg-accent/10 border border-accent/30 flex items-center justify-center">
+            <Icon name="mdi:school" class={`w-5 h-5 ${index === 0 ? 'text-accent' : 'text-accent/60'}`} />
+          </div>
+
+          <div class="bg-accent/5 border border-accent/10 p-4 md:p-6 rounded-2xl hover:border-accent/40 transition-all">
+            <span class="font-mono text-xs tracking-widest uppercase text-accent/75">{item.period}</span>
+            <h3 class="text-xl font-heading font-bold text-maintext mt-1">{item.degree}</h3>
+            <p class="text-accent text-sm">{item.institution}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .education-header,
+  .education-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .education-header.reveal,
+  .education-card.reveal {
+    opacity: 1 !important;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  function revealEducation() {
+    const targets = document.querySelectorAll('.education-header, .education-card');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = Array.from(targets).indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('reveal');
+          }, (index % 3) * 150);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10px 0px' });
+
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  revealEducation();
+  document.addEventListener('astro:after-swap', revealEducation);
+</script>

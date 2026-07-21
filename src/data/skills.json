@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Liderazgo Técnico",
+    "icon": "mdi:account-tie",
+    "description": "Liderazgo de equipos de desarrollo (2 programadores a cargo)."
+  },
+  {
+    "name": "Metodologías Ágiles",
+    "icon": "mdi:sync",
+    "description": "Planificación de tareas con Scrum y Kanban, gestionadas en Asana."
+  },
+  {
+    "name": "Arquitectura de Software",
+    "icon": "mdi:sitemap",
+    "description": "Diseño de arquitecturas híbridas multi-base de datos (SQL Server + MySQL)."
+  },
+  {
+    "name": "Optimización SQL",
+    "icon": "mdi:database-cog",
+    "description": "Optimización de consultas y rendimiento de bases de datos."
+  },
+  {
+    "name": "Automatización con IA",
+    "icon": "mdi:robot",
+    "description": "Implementación de Chat Bots con inteligencia artificial."
+  },
+  {
+    "name": "Resolución de Problemas",
+    "icon": "mdi:puzzle",
+    "description": "Análisis, depuración y optimización de código en producción."
+  },
+  {
+    "name": "Administración de Servidores",
+    "icon": "mdi:server",
+    "description": "Gestión de hosting y despliegues (cPanel)."
+  },
+  {
+    "name": "Documentación Técnica",
+    "icon": "mdi:file-document-edit",
+    "description": "Elaboración de material didáctico y guías de aprendizaje."
+  },
+  {
+    "name": "Trabajo en Equipo",
+    "icon": "mdi:account-group",
+    "description": "Colaboración y coordinación en proyectos multidisciplinarios."
+  },
+  {
+    "name": "Soporte Técnico",
+    "icon": "mdi:lifebuoy",
+    "description": "Resolución de incidencias en producción."
+  }
+]

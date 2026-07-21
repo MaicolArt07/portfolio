@@ -1,0 +1,67 @@
+---
+import { Icon } from 'astro-icon/components';
+import certificationsData from '../data/certifications.json';
+---
+
+<section id="certifications" class="section-container">
+  <div class="container mx-auto">
+    <div class="cert-header mb-12">
+      <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
+        <span class="text-accent">/</span> Certificaciones
+      </h2>
+      <p class="text-subtext font-body text-sm max-w-md">
+        Formación complementaria
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {certificationsData.map((cert) => (
+        <div class="cert-card group bg-accent/5 border border-accent/10 rounded-2xl p-6 flex flex-col gap-3 hover:border-accent/40 hover:bg-accent/10 transition-all duration-300">
+          <div class="w-12 h-12 rounded-xl bg-accent/15 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+            <Icon name={cert.icon} class="w-6 h-6 text-accent" />
+          </div>
+          <h3 class="text-maintext font-heading font-bold text-base leading-snug">{cert.title}</h3>
+          <p class="text-subtext text-xs uppercase tracking-wider">{cert.issuer}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .cert-header,
+  .cert-card {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .cert-header.reveal,
+  .cert-card.reveal {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1);
+  }
+</style>
+
+<script>
+  function revealCertifications() {
+    const targets = document.querySelectorAll('.cert-header, .cert-card');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = Array.from(targets).indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('reveal');
+          }, (index % 3) * 150);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10px 0px' });
+
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  revealCertifications();
+  document.addEventListener('astro:after-swap', revealCertifications);
+</script>

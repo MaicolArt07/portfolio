@@ -1,0 +1,68 @@
+[
+  {
+    "company": "SIAC Condominios",
+    "role": "Desarrollador Fullstack",
+    "period": "Mar 2026 - Presente",
+    "type": "Desarrollo de Software",
+    "achievements": [
+      "Desarrollo y mantenimiento de una plataforma web para la gestión integral de múltiples condominios utilizando Laravel 12, Livewire, MySQL y SQL Server.",
+      "Integración con múltiples bases de datos SQL Server centralizadas en una máquina virtual, permitiendo administrar diversos condominios mediante conexiones dinámicas.",
+      "Arquitectura híbrida: SQL Server para la información financiera y administrativa del ERP legacy, y MySQL para los módulos propios (accesos, visitas, códigos QR y gestión interna).",
+      "Desarrollo de módulos de seguridad, control de visitas por QR, reservas de áreas comunes, pagos, estados de cuenta, reportes y administración de copropietarios."
+    ],
+    "tech": ["Laravel", "Livewire", "MySQL", "SQL Server"]
+  },
+  {
+    "company": "PBT SRL",
+    "role": "Desarrollador de Software",
+    "period": "Dic 2024 - Presente",
+    "type": "Desarrollo de Software",
+    "achievements": [
+      "Liderazgo técnico de un equipo de 2 programadores.",
+      "Planificación, creación y asignación de tareas bajo metodologías ágiles (Scrum y Kanban), gestionadas en Asana.",
+      "Desarrollo y mantenimiento de aplicaciones web con Laravel, Livewire, Astro, WordPress, Joomla, Yii2 y PHP puro.",
+      "Implementación de un Chat Bot con inteligencia artificial y de una pasarela de pago en BigCommerce.",
+      "Análisis, depuración y optimización de código en sistemas existentes; administración de servidores y hosting (cPanel); soporte técnico en producción."
+    ],
+    "tech": ["Laravel", "Livewire", "Astro", "WordPress", "Joomla", "Yii2", "PHP", "BigCommerce", "Asana"]
+  },
+  {
+    "company": "Instituto Técnico Cumbre y Unidad Educativa",
+    "role": "Docente y Profesor de Computación / Informática",
+    "period": "Ago 2024 - Dic 2024",
+    "type": "Docencia",
+    "achievements": [
+      "Docente de informática en nivel técnico y escolar.",
+      "Enseñanza de herramientas de ofimática: Microsoft Excel, Word y PowerPoint.",
+      "Desarrollo de clases prácticas orientadas al uso profesional de herramientas digitales.",
+      "Elaboración de material didáctico y guías de aprendizaje; evaluación del desempeño académico de estudiantes."
+    ],
+    "tech": ["Excel", "Word", "PowerPoint"]
+  },
+  {
+    "company": "Universidad Privada Cumbre",
+    "role": "Programador Fullstack",
+    "period": "Mar 2023 - Jun 2024",
+    "type": "Desarrollo de Software",
+    "achievements": [
+      "Mantenimiento e implementación de nuevas funcionalidades del sistema CEC, Portal Cumbre e ITC (Instituto Técnico Cumbre).",
+      "Implementación de bases de datos relacionales con MySQL y optimización de consultas SQL.",
+      "Creación de reportes y mejoras de rendimiento y experiencia de usuario.",
+      "Creación del sistema de convalidación de la Universidad y control del centralizador de calificaciones."
+    ],
+    "tech": ["PHP", "JavaScript", "jQuery", "Bootstrap", "MySQL", "Oracle", "Laravel", "Git", "React"]
+  },
+  {
+    "company": "Biopetrol",
+    "role": "Programador Junior",
+    "period": "Nov 2022 - Ene 2023",
+    "type": "Desarrollo de Software",
+    "achievements": [
+      "Implementación de formularios con HTML, CSS y JavaScript.",
+      "Uso de los gestores de base de datos MySQL y PostgreSQL.",
+      "Optimización de KPIs para Recursos Humanos.",
+      "Creación de formularios CRUD con CodeIgniter."
+    ],
+    "tech": ["HTML", "CSS", "JavaScript", "MySQL", "PostgreSQL", "CodeIgniter"]
+  }
+]

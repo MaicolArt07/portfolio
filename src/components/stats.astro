@@ -1,0 +1,118 @@
+---
+import { Icon } from 'astro-icon/components';
+import careerData from '../data/career.json';
+import techData from '../data/tech.json';
+import projectsData from '../data/projects.json';
+import certificationsData from '../data/certifications.json';
+
+const MONTHS: Record<string, number> = {
+  ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
+  jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
+};
+
+function parseStartDate(period: string): Date | null {
+  const match = period.toLowerCase().match(/([a-záéíóú]+)\s+(\d{4})/i);
+  if (!match) return null;
+  const month = MONTHS[match[1]];
+  const year = parseInt(match[2], 10);
+  if (month === undefined || isNaN(year)) return null;
+  return new Date(year, month, 1);
+}
+
+const startDates = careerData
+  .map((item) => parseStartDate(item.period))
+  .filter((d): d is Date => d !== null);
+
+const earliestStart = startDates.length
+  ? new Date(Math.min(...startDates.map((d) => d.getTime())))
+  : null;
+
+const now = new Date();
+const yearsExperience = earliestStart
+  ? Math.max(1, Math.floor((now.getTime() - earliestStart.getTime()) / (1000 * 60 * 60 * 24 * 365.25)))
+  : 0;
+
+const technologiesCount = techData.categories.reduce((sum, cat) => sum + cat.skills.length, 0);
+const companiesCount = careerData.length;
+const projectsCount = projectsData.length;
+const certificationsCount = certificationsData.length;
+
+const stats = [
+  { icon: 'mdi:calendar-clock', value: yearsExperience, suffix: '+', label: 'Años de experiencia' },
+  { icon: 'mdi:domain', value: companiesCount, suffix: '', label: 'Empresas' },
+  { icon: 'mdi:code-tags', value: technologiesCount, suffix: '+', label: 'Tecnologías dominadas' },
+  { icon: 'mdi:rocket-launch', value: projectsCount, suffix: '', label: 'Proyectos realizados' },
+  { icon: 'mdi:certificate', value: certificationsCount, suffix: '', label: 'Certificaciones' },
+];
+---
+
+<section id="stats" class="section-container">
+  <div class="container mx-auto">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+      {stats.map((stat) => (
+        <div class="stat-card bg-accent/5 border border-accent/10 rounded-2xl p-5 md:p-6 flex flex-col items-center text-center gap-2 hover:border-accent/40 hover:bg-accent/10 transition-all duration-300">
+          <Icon name={stat.icon} class="w-7 h-7 text-accent mb-1" />
+          <span class="stat-number text-3xl md:text-4xl font-heading font-bold text-maintext" data-target={stat.value} data-suffix={stat.suffix}>0{stat.suffix}</span>
+          <span class="text-subtext text-xs font-body uppercase tracking-wider">{stat.label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .stat-card {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .stat-card.reveal {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1);
+  }
+</style>
+
+<script>
+  function animateCount(el: Element) {
+    const target = parseInt(el.getAttribute('data-target') || '0', 10);
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 1200;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(target * eased);
+      el.textContent = `${current}${suffix}`;
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      }
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  function revealStats() {
+    const cards = document.querySelectorAll('.stat-card');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const index = Array.from(cards).indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('reveal');
+            const numberEl = entry.target.querySelector('.stat-number');
+            if (numberEl) animateCount(numberEl);
+          }, (index % 5) * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3, rootMargin: '0px 0px -30px 0px' });
+
+    cards.forEach((card) => observer.observe(card));
+  }
+
+  revealStats();
+  document.addEventListener('astro:after-swap', revealStats);
+</script>

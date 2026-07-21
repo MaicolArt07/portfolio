@@ -1,0 +1,83 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const highlights = [
+  { icon: 'mdi:account-tie', label: 'Liderazgo de equipos' },
+  { icon: 'mdi:sitemap', label: 'Arquitectura de software' },
+  { icon: 'mdi:database-cog', label: 'Optimización de bases de datos' },
+  { icon: 'mdi:robot', label: 'Automatización con IA' },
+];
+---
+
+<section id="about" class="section-container">
+  <div class="container mx-auto">
+    <div class="about-header mb-12">
+      <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
+        <span class="text-accent">/</span> Sobre mí
+      </h2>
+      <p class="text-subtext font-body text-sm max-w-md">
+        Quién soy y cómo trabajo
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div class="about-content lg:col-span-2 bg-accent/5 border border-accent/10 rounded-2xl p-6 md:p-10 backdrop-blur-sm">
+        <p class="text-subtext font-body text-base md:text-lg leading-relaxed">
+          Ingeniero de Sistemas y Desarrollador Fullstack con experiencia diseñando y manteniendo plataformas web para condominios, universidades e industria. Actualmente lidero el desarrollo de una plataforma de gestión integral para <span class="text-maintext font-semibold">SIAC Condominios</span>, con una arquitectura híbrida que combina SQL Server y MySQL, y coordino un equipo de programadores en <span class="text-maintext font-semibold">PBT SRL</span> bajo metodologías ágiles (Scrum y Kanban).
+        </p>
+        <p class="text-subtext font-body text-base md:text-lg leading-relaxed mt-4">
+          Mi trabajo combina arquitectura de software, optimización de bases de datos y automatización con inteligencia artificial —incluyendo la implementación de un Chat Bot con IA— para resolver problemas reales y mejorar la experiencia del usuario. Con bases sólidas en PHP, Laravel, Livewire, WordPress, Joomla y bases de datos relacionales, me enfoco en construir soluciones eficientes, escalables y bien documentadas, sin perder de vista el soporte técnico y la mejora continua de los sistemas en producción.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        {highlights.map((item) => (
+          <div class="about-card bg-accent/5 border border-accent/10 rounded-2xl p-5 flex flex-col items-center text-center gap-3 hover:border-accent/40 hover:bg-accent/10 transition-all duration-300">
+            <Icon name={item.icon} class="w-8 h-8 text-accent" />
+            <span class="text-maintext font-body text-xs font-medium leading-tight">{item.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about-header,
+  .about-content,
+  .about-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .about-header.reveal,
+  .about-content.reveal,
+  .about-card.reveal {
+    opacity: 1 !important;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  function revealAbout() {
+    const targets = document.querySelectorAll('.about-header, .about-content, .about-card');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const index = Array.from(targets).indexOf(entry.target);
+          setTimeout(() => {
+            entry.target.classList.add('reveal');
+          }, (index % 4) * 120);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -10px 0px' });
+
+    targets.forEach((el) => observer.observe(el));
+  }
+
+  revealAbout();
+  document.addEventListener('astro:after-swap', revealAbout);
+</script>
