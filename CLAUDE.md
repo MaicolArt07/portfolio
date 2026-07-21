@@ -5,6 +5,15 @@
 > repitas el contexto — simplemente abre el proyecto y pide continuar. También es
 > un markdown normal, ábrelo cuando quieras para ver en qué quedamos.
 
+## Documentación del proyecto
+
+Hay 4 documentos, cada uno con un rol distinto — no son redundantes:
+
+- **`README.md`** — descripción pública del proyecto para quien visite el repo en GitHub.
+- **`TEMPLATE-README.md`** — README original de la plantilla Astro, conservado tal cual (créditos e instrucciones genéricas del autor original).
+- **`CLAUDE.md`** (este archivo) — estado técnico actual: qué está hecho, qué falta, reglas acordadas. Se lee automáticamente al abrir el proyecto en una sesión nueva.
+- **`HISTORIAL.md`** — relato narrativo de cómo se construyó todo, sesión por sesión (el "por qué", no el "qué hay ahora").
+
 ## Qué es este proyecto
 
 Portfolio personal de **Maicol Erick Arteaga Guzmán** (Ingeniero de Sistemas /
@@ -199,3 +208,10 @@ cacheada (con confirmación del usuario) y el push funcionó. El primer run del
 workflow de despliegue falló en el paso `deploy` porque GitHub Pages no
 estaba habilitado todavía en el repo — es la única acción manual pendiente
 (ver arriba).
+
+Después: se reemplazó el logo de cohete de Astro (placeholder de foto de
+perfil) por un ícono de silueta genérico que se adapta al tema, y se
+simplificó el footer a solo el nombre centrado (sin atribución a la
+plantilla). Por último, se reorganizó la documentación del proyecto en 4
+archivos con roles distintos — ver "Documentación del proyecto" arriba y el
+relato completo en [`HISTORIAL.md`](HISTORIAL.md).
