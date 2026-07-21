@@ -142,6 +142,29 @@ npm run preview   # previsualizar el build
   template existente — solo reemplazar/ampliar contenido.
 - Sitio en **español**.
 
+## Repositorio y despliegue
+
+- **Repo**: https://github.com/MaicolArt07/portfolio (rama `main`)
+- **Hosting**: GitHub Pages, vía GitHub Actions (`.github/workflows/deploy.yml`,
+  ya incluido en la plantilla original — usa `withastro/action` + `actions/deploy-pages`).
+  Se dispara automáticamente en cada push a `main`.
+- **URL pública**: https://MaicolArt07.github.io/portfolio/
+- **`astro.config.mjs`**: `site` y `base` configurados para este repo
+  (`base: '/portfolio/'`). Si el repo cambia de nombre, hay que actualizar
+  `base` acá.
+- **Assets con ruta absoluta**: como el sitio vive bajo `/portfolio/` y no en
+  la raíz del dominio, cualquier ruta hardcodeada tipo `/favicon.ico` se rompe.
+  Ya se corrigió esto usando `import.meta.env.BASE_URL` en: `Layout.astro`
+  (favicon), `home.astro` (foto de perfil placeholder + link de CV) y
+  `project-card.astro` (imagen placeholder). Si se agrega alguna ruta nueva
+  a un archivo de `public/`, hay que prefijarla igual con `BASE_URL`.
+- **Pendiente (acción manual única del usuario)**: la primera vez, GitHub
+  Pages necesita habilitarse a mano en el repo: **Settings → Pages → Build
+  and deployment → Source: "GitHub Actions"**. Sin este paso el job `deploy`
+  del workflow falla aunque el build esté bien. Después de habilitarlo, hay
+  que volver a correr el workflow (Actions → el run fallido → "Re-run all
+  jobs") o hacer un push nuevo.
+
 ## Historial de sesiones
 
 ### Sesión 1 — 2026-07-21
@@ -164,3 +187,15 @@ contacto usaban `border-white/10` fijo (invisible sobre fondo claro) — se
 cambiaron a `border-maintext/15` / `bg-maintext/5`, que se adaptan
 correctamente a cualquier tema y modo. Verificado visualmente en dark y light
 con Playwright.
+
+Al final de la sesión: se subió el proyecto a GitHub
+(`github.com/MaicolArt07/portfolio`) y se configuró para desplegarse solo en
+GitHub Pages. Se detectó y corrigió el problema de rutas absolutas que se
+rompen bajo un subpath (`/portfolio/`) — ver sección "Repositorio y
+despliegue" arriba. Hubo un obstáculo de autenticación: Windows tenía
+guardada una credencial de git para otra cuenta (`sistemaspbt`, del trabajo)
+que bloqueaba el push a la cuenta personal; se eliminó esa credencial
+cacheada (con confirmación del usuario) y el push funcionó. El primer run del
+workflow de despliegue falló en el paso `deploy` porque GitHub Pages no
+estaba habilitado todavía en el repo — es la única acción manual pendiente
+(ver arriba).
