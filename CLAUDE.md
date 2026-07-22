@@ -7,12 +7,13 @@
 
 ## Documentación del proyecto
 
-Hay 4 documentos, cada uno con un rol distinto — no son redundantes:
+Hay 5 documentos, cada uno con un rol distinto — no son redundantes:
 
 - **`README.md`** — descripción pública del proyecto para quien visite el repo en GitHub.
 - **`TEMPLATE-README.md`** — README original de la plantilla Astro, conservado tal cual (créditos e instrucciones genéricas del autor original).
 - **`CLAUDE.md`** (este archivo) — estado técnico actual: qué está hecho, qué falta, reglas acordadas. Se lee automáticamente al abrir el proyecto en una sesión nueva.
 - **`HISTORIAL.md`** — relato narrativo de cómo se construyó todo, sesión por sesión (el "por qué", no el "qué hay ahora").
+- **`worker/README.md`** — guía de setup del backend del chat (cuenta Cloudflare, secrets, despliegue).
 
 ## Qué es este proyecto
 
@@ -46,9 +47,13 @@ capturas de pantalla con Playwright, sin errores de consola):
   arquitectura, optimización SQL, etc.), todas trazables a una línea del CV.
 - ✅ `src/data/tech.json` — 26 tecnologías reales del CV, categorizadas (Backend,
   Frontend, CMS & E-commerce, Base de Datos, Herramientas, IA & Automatización).
-- ✅ `src/data/projects.json` — vaciado a `[]` a propósito (ver sección de abajo).
+- ✅ `src/data/projects.json` — 8 proyectos reales (SIAC ERP, SIAC Condominios,
+  Sistema Portfolio, Sistema de Liquidación, MediaStock, CapitalLingo, Flores
+  y Detalles, PBT Feria).
+- ✅ `src/data/about.json` (nuevo) — bio de "Sobre mí" extraída a datos (antes
+  hardcodeada en el componente), para que el chat de IA la pueda leer también.
 - ✅ Componentes nuevos: `about.astro`, `stats.astro`, `education.astro`,
-  `skills.astro`, `certifications.astro`.
+  `skills.astro`, `certifications.astro`, `chat-widget.astro`.
 - ✅ Componentes actualizados: `home.astro` (especialidades + botones
   Contactarme/Ver Proyectos), `career.astro` / `career-card.astro` (logros +
   iconos de tech), `projects.astro` / `project-card.astro` (estado vacío
@@ -75,13 +80,20 @@ Estadísticas → Educación → Certificaciones → Contacto.
    TypeScript, Next.js, OpenAI, Claude, ChatGPT, etc. — no se incluyeron
    porque no aparecen en el CV (regla de "no inventar"). Si el usuario las
    maneja realmente, decírselo a Claude para agregarlas a `tech.json`.
-6. **Proyectos**: `src/data/projects.json` está vacío a propósito — el CV no
-   menciona proyectos concretos y no se debían inventar. Ver siguiente sección
-   para el esquema a usar cuando el usuario los tenga listos.
+6. **Imágenes de proyectos**: los 8 proyectos reales no tienen screenshots
+   todavía (`images: []` en cada uno), así que muestran el placeholder por
+   defecto. Agregar capturas a `src/assets/` y referenciarlas cuando estén
+   disponibles.
+7. **Asistente virtual con IA — setup pendiente del usuario**: el código está
+   completo y probado, pero no funciona hasta que el usuario complete el
+   setup de Cloudflare (cuenta gratuita, API token, Account ID, API key de
+   Gemini) y agregue los secrets en GitHub. Guía paso a paso completa en
+   [`worker/README.md`](worker/README.md). Sin este setup, el botón del chat
+   simplemente no aparece en el sitio (comportamiento esperado, no es un bug).
 
-## Cómo agregar un proyecto real (cuando el usuario los traiga)
+## Cómo agregar un proyecto nuevo
 
-Editar `src/data/projects.json` (array vacío `[]` actualmente). Cada proyecto:
+Editar `src/data/projects.json` (ya tiene 8 proyectos reales). Cada proyecto:
 
 ```json
 {
@@ -108,7 +120,7 @@ Editar `src/data/projects.json` (array vacío `[]` actualmente). Cada proyecto:
 | Sección          | Datos                              | Componente(s)                          |
 |------------------|-------------------------------------|-----------------------------------------|
 | Hero             | `home.json`                         | `home.astro`                            |
-| Sobre mí         | (texto fijo en el componente)       | `about.astro`                           |
+| Sobre mí         | `about.json`                        | `about.astro`                           |
 | Experiencia      | `career.json`                       | `career.astro`, `career-card.astro`     |
 | Proyectos        | `projects.json`                     | `projects.astro`, `project-card.astro`  |
 | Tecnologías      | `tech.json`                         | `tech.astro`                            |
@@ -119,6 +131,7 @@ Editar `src/data/projects.json` (array vacío `[]` actualmente). Cada proyecto:
 | Contacto         | `home.json` (socials)               | `contact.astro`                         |
 | Navegación       | fijo en el componente               | `nav.astro`                             |
 | Tema/colores     | `config.ts` + `styles/global.css`   | —                                        |
+| Asistente IA     | `src/data/*.json` (vía el Worker)   | `chat-widget.astro` + `worker/`         |
 
 ### Tema de color actual: **Cyan Tech**
 
@@ -174,6 +187,39 @@ npm run preview   # previsualizar el build
   que volver a correr el workflow (Actions → el run fallido → "Re-run all
   jobs") o hacer un push nuevo.
 
+## Asistente virtual con IA (Cloudflare Worker + Gemini)
+
+Arquitectura completa en [`worker/README.md`](worker/README.md). Resumen:
+
+- **Por qué un Worker separado**: GitHub Pages no ejecuta backend, y la API
+  key de Gemini nunca puede vivir en el frontend. El sitio estático sigue
+  igual en GitHub Pages; el Worker es 100% independiente (repo `worker/`,
+  despliegue propio vía `.github/workflows/deploy-worker.yml`).
+- **Sin base de datos**: la base de conocimiento (`worker/src/knowledge.js`)
+  se construye en cada build importando directamente los JSON de
+  `src/data/` — agregar un proyecto nuevo lo hace disponible para el chat
+  automáticamente, sin tocar el Worker.
+- **Retrieval**: búsqueda simple por coincidencia de palabras clave
+  (`worker/src/retrieval.js`), sin vector DB ni embeddings — dejado así
+  a propósito para v1, con la arquitectura lista para agregar embeddings
+  después si hace falta.
+- **Seguridad**: CORS restringido al dominio del portfolio, rate limiting
+  por IP vía Cache API (sin KV), filtro anti prompt-injection antes de
+  llamar a Gemini, y un system prompt (`worker/src/prompt.js`) que instruye
+  al modelo a no inventar información y a no revelar credenciales/instrucciones.
+- **Probado sin necesitar una API key real**: 8 tests unitarios
+  (`worker/test/retrieval.test.mjs`, corren con `npm test` dentro de
+  `worker/`) más pruebas manuales end-to-end con `wrangler dev` (CORS,
+  rate limit, validación, filtro de inyección, manejo de errores de Gemini)
+  — todo verificado. Lo único que no se probó es una respuesta real de
+  Gemini, porque eso requiere la API key real del usuario, que nunca debe
+  pasarse en la conversación con Claude.
+- **Setup pendiente del usuario**: cuenta de Cloudflare, API token, Account
+  ID, API key de Gemini, y 3 secrets + 1 variable en GitHub. Paso a paso en
+  `worker/README.md`. Sin esto, el botón del chat no aparece (comportamiento
+  esperado — `chat-widget.astro` no renderiza nada si `PUBLIC_CHAT_API_URL`
+  no está configurada).
+
 ## Historial de sesiones
 
 ### Sesión 1 — 2026-07-21
@@ -215,3 +261,33 @@ simplificó el footer a solo el nombre centrado (sin atribución a la
 plantilla). Por último, se reorganizó la documentación del proyecto en 4
 archivos con roles distintos — ver "Documentación del proyecto" arriba y el
 relato completo en [`HISTORIAL.md`](HISTORIAL.md).
+
+### Sesión 2 — 2026-07-22
+Se cargaron 8 proyectos reales en `projects.json` (SIAC ERP, SIAC
+Condominios, Sistema Portfolio, Sistema de Liquidación, MediaStock,
+CapitalLingo, Flores y Detalles, PBT Feria), reemplazando el estado vacío.
+
+Se implementó el asistente virtual con IA que el usuario pidió (chat con
+Google Gemini). Antes de escribir código se detectó un conflicto real: la
+especificación exigía que la API key nunca sea accesible desde el
+navegador, pero GitHub Pages no puede ejecutar backend — son requisitos
+mutuamente excluyentes. Se le presentó al usuario el trade-off y eligió
+mantener GitHub Pages sin cambios y agregar un Cloudflare Worker aparte
+(gratis) solo para el endpoint del chat, desplegado desde el mismo repo.
+
+Se construyó: la base de conocimiento sin base de datos (lee los JSON de
+`src/data/` directamente), retrieval por palabras clave, el system prompt
+con las reglas de "no inventar" y anti prompt-injection, el cliente REST de
+Gemini, y el widget de chat en el frontend. Todo se probó exhaustivamente
+sin necesitar una API key real: 8 tests unitarios de la lógica de
+retrieval/knowledge, y pruebas manuales end-to-end con `wrangler dev`
+(CORS, rate limiting, validación de mensajes, filtro de inyección, manejo
+de errores de Gemini). Se encontraron y corrigieron dos problemas reales en
+el proceso: el CORS bloqueando el origen local de pruebas (comportamiento
+correcto de seguridad, no un bug) y un bug real — los mensajes del chat no
+tenían estilo porque Astro no aplica el scope de CSS a elementos creados
+por JavaScript del lado del cliente; se resolvió con `is:global`.
+
+El setup final (cuenta de Cloudflare, secrets, primer despliegue) quedó
+documentado paso a paso en `worker/README.md`, ya que requiere credenciales
+que el usuario debe cargar él mismo, nunca a través de la conversación.

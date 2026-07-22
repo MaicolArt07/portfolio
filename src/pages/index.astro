@@ -11,6 +11,7 @@ import Education from "../components/education.astro";
 import Skills from "../components/skills.astro";
 import Stats from "../components/stats.astro";
 import Certifications from "../components/certifications.astro";
+import ChatWidget from "../components/chat-widget.astro";
 import localData from '../data/home.json';
 
 interface ProfileData {
@@ -50,4 +51,5 @@ const { webpageTitle } = data;
 	<Education />
 	<Certifications />
 	<Contact />
+	<ChatWidget />
 </Layout>

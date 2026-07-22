@@ -24,7 +24,7 @@ El sitio es de una sola página (`/`) con las siguientes secciones:
 | **Inicio** | Nombre, rol, especialidades, botones de CV / contacto / proyectos, redes sociales |
 | **Sobre mí** | Resumen profesional y fortalezas clave |
 | **Experiencia** | Timeline con 5 empleos reales, logros y stack tecnológico por puesto |
-| **Proyectos** | Tarjetas de proyectos (lista para completar — ver [Cómo agregar contenido](#-cómo-agregar-o-actualizar-contenido)) |
+| **Proyectos** | 8 proyectos profesionales reales, con tecnologías, estado y links |
 | **Tecnologías** | 26 tecnologías reales agrupadas por categoría, con ícono y nivel |
 | **Habilidades** | Fortalezas blandas (liderazgo, arquitectura, resolución de problemas, etc.) |
 | **Estadísticas** | Años de experiencia, empresas, tecnologías, proyectos y certificaciones — **calculadas automáticamente** desde los datos, no hardcodeadas |
@@ -32,8 +32,10 @@ El sitio es de una sola página (`/`) con las siguientes secciones:
 | **Certificaciones** | Formación complementaria |
 | **Contacto** | Formulario (abre el cliente de correo con el mensaje prellenado) + tarjetas de redes |
 
-Incluye modo claro/oscuro, animaciones al hacer scroll, y un tema de color
-propio ("Cyan Tech") no incluido en la plantilla original.
+Incluye modo claro/oscuro, animaciones al hacer scroll, un tema de color
+propio ("Cyan Tech") no incluido en la plantilla original, y un **asistente
+virtual con IA** (ver más abajo) que responde preguntas sobre el perfil
+profesional usando únicamente la información real del portfolio.
 
 ## 🛠️ Stack técnico
 
@@ -41,6 +43,7 @@ propio ("Cyan Tech") no incluido en la plantilla original.
 - **[Tailwind CSS 4](https://tailwindcss.com/)** — estilos
 - **[astro-icon](https://www.astroicon.dev/) / [Iconify](https://iconify.design/)** — toda la iconografía (`mdi`, `simple-icons`, `skill-icons`, `devicon-plain`, `vscode-icons`)
 - **GitHub Actions + GitHub Pages** — build y despliegue automático en cada push a `main`
+- **Cloudflare Workers + Google Gemini** — backend del asistente virtual (ver [Asistente virtual](#-asistente-virtual-con-ia))
 
 ## 🚀 Cómo correrlo en local
 
@@ -91,11 +94,38 @@ buildear).
 > ver [`CLAUDE.md`](CLAUDE.md). Para la historia completa de cómo se construyó
 > este sitio, sesión por sesión, ver [`HISTORIAL.md`](HISTORIAL.md).
 
+## 🤖 Asistente virtual con IA
+
+Un chat flotante que responde preguntas sobre la experiencia, tecnologías y
+proyectos de Maicol, usando **Google Gemini** — pero solo con la información
+real de este portfolio, nunca con conocimiento externo ni datos inventados.
+
+- **Frontend**: `src/components/chat-widget.astro` (botón flotante + panel,
+  no se renderiza si el backend no está configurado).
+- **Backend**: un **Cloudflare Worker** separado (carpeta `worker/`), porque
+  GitHub Pages no puede ejecutar servidor y la API key de Gemini nunca puede
+  vivir en el frontend. El sitio estático sigue igual, sin cambios de hosting.
+- **Base de conocimiento**: no hay base de datos — el Worker lee directamente
+  los mismos JSON de `src/data/` (experiencia, proyectos, tecnologías, etc.),
+  así que agregar un proyecto nuevo lo pone disponible para el chat sin tocar
+  el backend.
+- **Seguridad**: la API key vive solo como secreto del Worker, CORS
+  restringido al dominio del portfolio, rate limiting por IP, y filtro
+  anti prompt-injection.
+
+Guía completa de configuración (cuenta de Cloudflare, secrets, despliegue):
+**[`worker/README.md`](worker/README.md)**.
+
 ## 🌐 Despliegue
 
 El sitio se despliega solo a **GitHub Pages** vía GitHub Actions
 (`.github/workflows/deploy.yml`) cada vez que se hace push a `main`. No
 requiere ningún paso manual adicional una vez configurado.
+
+El backend del chat se despliega por separado a **Cloudflare Workers** vía
+`.github/workflows/deploy-worker.yml`, solo cuando cambia algo en `worker/`
+o en `src/data/`. Ver [`worker/README.md`](worker/README.md) para el setup
+inicial (requiere una cuenta gratuita de Cloudflare).
 
 ## 🙏 Créditos
 

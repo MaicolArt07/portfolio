@@ -1,0 +1,18 @@
+name = "maicol-portfolio-chat"
+main = "src/index.js"
+compatibility_date = "2026-07-21"
+
+# GEMINI_API_KEY is NOT set here. It's a secret — set it once with:
+#   npx wrangler secret put GEMINI_API_KEY
+# (or let the GitHub Action set it from the GEMINI_API_KEY repo secret, see
+# .github/workflows/deploy-worker.yml)
+
+[vars]
+# Model name is fully configurable here, never hardcoded in the worker code.
+GEMINI_MODEL = "gemini-2.0-flash"
+# Origin allowed to call this worker (your GitHub Pages site).
+ALLOWED_ORIGIN = "https://maicolart07.github.io"
+# Chat tuning
+CHAT_MAX_MESSAGE_LENGTH = "1000"
+CHAT_HISTORY_LIMIT = "6"
+CHAT_RATE_LIMIT = "10"

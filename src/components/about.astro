@@ -1,5 +1,6 @@
 ---
 import { Icon } from 'astro-icon/components';
+import aboutData from '../data/about.json';
 
 const highlights = [
   { icon: 'mdi:account-tie', label: 'Liderazgo de equipos' },
@@ -7,6 +8,16 @@ const highlights = [
   { icon: 'mdi:database-cog', label: 'Optimización de bases de datos' },
   { icon: 'mdi:robot', label: 'Automatización con IA' },
 ];
+
+function highlight(text: string, terms: string[]) {
+  let html = text;
+  for (const term of terms) {
+    html = html.split(term).join(`<span class="text-maintext font-semibold">${term}</span>`);
+  }
+  return html;
+}
+
+const paragraphsHtml = aboutData.paragraphs.map((p) => highlight(p, aboutData.highlightTerms));
 ---
 
 <section id="about" class="section-container">
@@ -22,12 +33,9 @@ const highlights = [
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div class="about-content lg:col-span-2 bg-accent/5 border border-accent/10 rounded-2xl p-6 md:p-10 backdrop-blur-sm">
-        <p class="text-subtext font-body text-base md:text-lg leading-relaxed">
-          Ingeniero de Sistemas y Desarrollador Fullstack con experiencia diseñando y manteniendo plataformas web para condominios, universidades e industria. Actualmente lidero el desarrollo de una plataforma de gestión integral para <span class="text-maintext font-semibold">SIAC Condominios</span>, con una arquitectura híbrida que combina SQL Server y MySQL, y coordino un equipo de programadores en <span class="text-maintext font-semibold">PBT SRL</span> bajo metodologías ágiles (Scrum y Kanban).
-        </p>
-        <p class="text-subtext font-body text-base md:text-lg leading-relaxed mt-4">
-          Mi trabajo combina arquitectura de software, optimización de bases de datos y automatización con inteligencia artificial —incluyendo la implementación de un Chat Bot con IA— para resolver problemas reales y mejorar la experiencia del usuario. Con bases sólidas en PHP, Laravel, Livewire, WordPress, Joomla y bases de datos relacionales, me enfoco en construir soluciones eficientes, escalables y bien documentadas, sin perder de vista el soporte técnico y la mejora continua de los sistemas en producción.
-        </p>
+        {paragraphsHtml.map((html, i) => (
+          <p class={`text-subtext font-body text-base md:text-lg leading-relaxed ${i > 0 ? 'mt-4' : ''}`} set:html={html} />
+        ))}
       </div>
 
       <div class="grid grid-cols-2 gap-4">

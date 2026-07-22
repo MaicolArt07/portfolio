@@ -109,3 +109,111 @@ proyecto sin perder contexto, se armaron tres documentos con roles distintos:
   el proyecto en una sesión nueva de Claude Code.
 - **`HISTORIAL.md`** (este archivo) — el relato de cómo se llegó hasta acá,
   sesión por sesión.
+
+---
+
+## Sesión 2 — 2026-07-22
+
+### 1. Proyectos reales
+
+Maicol trajo la información de 8 proyectos profesionales reales (SIAC ERP,
+SIAC Condominios, Sistema Portfolio, Sistema de Liquidación, MediaStock,
+CapitalLingo, Flores y Detalles, PBT Feria) — con roles, tecnologías,
+descripciones y, para dos de ellos, URLs en producción. Se cargaron en
+`src/data/projects.json`, reemplazando por fin el estado vacío que había
+quedado pendiente desde la Sesión 1.
+
+### 2. El pedido: un chat con IA (Gemini) — y un conflicto de arquitectura real
+
+Maicol pidió integrar un asistente de chat con Google Gemini que respondiera
+únicamente sobre su experiencia profesional, con una especificación muy
+detallada y técnicamente correcta en su parte de seguridad: la API key de
+Gemini nunca debía ser accesible desde el navegador ni vivir en el frontend.
+
+Antes de escribir una sola línea de código se detectó el problema: **GitHub
+Pages solo sirve archivos estáticos, no puede ejecutar ningún backend**. No
+hay forma de cumplir "nunca expongas la API key al navegador" y "mantené
+todo en GitHub Pages" al mismo tiempo — son requisitos mutuamente
+excluyentes, no algo que se resuelva escribiendo más código. Se le explicó
+esto a Maicol antes de tocar nada, junto con las opciones reales: migrar
+todo el hosting a una plataforma con soporte de backend (Cloudflare Pages o
+Vercel), o mantener GitHub Pages intacto y agregar un backend mínimo aparte
+solo para el chat. Maicol eligió la segunda opción, para no perder la URL
+que ya tenía funcionando.
+
+### 3. La solución: un Cloudflare Worker aparte, sin base de datos
+
+Se construyó un backend mínimo como **Cloudflare Worker** (carpeta
+`worker/`, proyecto independiente dentro del mismo repo), desplegado por su
+propio GitHub Action (`deploy-worker.yml`) que solo se dispara cuando cambia
+algo en `worker/` o en `src/data/`. El sitio estático en GitHub Pages no se
+tocó.
+
+Siguiendo el pedido explícito de "no usaremos base de datos", la base de
+conocimiento del asistente no vive en ningún lado nuevo: el Worker importa
+directamente los mismos archivos JSON que ya alimentan el sitio
+(`career.json`, `projects.json`, `tech.json`, etc.) y arma fragmentos de
+contexto a partir de ellos. Esto significa que agregar un proyecto nuevo en
+el futuro lo pone disponible para el chat automáticamente, sin tocar el
+backend — exactamente lo que Maicol había pedido.
+
+Para no depender de una base de datos vectorial (embeddings), el retrieval
+de contexto relevante se implementó con una búsqueda simple por coincidencia
+de palabras clave, dejando la arquitectura lista para incorporar embeddings
+más adelante si hiciera falta — tal como el propio Maicol había sugerido en
+su especificación para una "primera versión".
+
+Se implementaron también todas las capas de seguridad pedidas: CORS
+restringido únicamente al dominio del portfolio, rate limiting por IP
+(usando la Cache API de Cloudflare, sin necesitar KV ni base de datos), un
+filtro que corta intentos de prompt injection antes de siquiera llamar a
+Gemini, y un system prompt estricto que instruye al modelo a no usar
+conocimiento externo, no inventar información, y no revelar credenciales ni
+sus propias instrucciones bajo ningún pedido.
+
+### 4. Cómo se probó todo sin tener (ni pedir) una API key real
+
+Una regla que se respetó en todo momento: nunca pedirle a Maicol que pegue
+su API key de Gemini en la conversación. Eso significó verificar todo lo
+que se pudiera sin necesitar una key real:
+
+- 8 tests unitarios (`worker/test/retrieval.test.mjs`) que prueban que la
+  base de conocimiento se arma bien, que el retrieval encuentra los
+  fragmentos correctos para preguntas sobre Laravel, contacto o educación,
+  que el filtro de prompt injection detecta los intentos comunes, y que la
+  validación de mensajes funciona.
+- Pruebas manuales end-to-end levantando el Worker localmente con
+  `wrangler dev` y una key falsa: se verificó que el CORS solo deja pasar
+  el origen correcto, que el rate limiting corta exactamente en el límite
+  configurado (se probó mandando 12 requests seguidas y contando en qué
+  request exacta empezaba a bloquear), que un mensaje vacío se rechaza, y
+  que un intento de inyección ("ignora las instrucciones anteriores...")
+  devuelve la respuesta genérica sin siquiera llamar a Gemini.
+- El widget de chat se probó visualmente con capturas de pantalla reales
+  (Playwright), incluyendo el flujo completo botón → panel → pregunta
+  sugerida → respuesta (o error, dado que la key de prueba era falsa).
+
+En el camino se encontraron y corrigieron dos cosas:
+
+1. Un falso positivo al principio: las respuestas del chat no llegaban en
+   una prueba local, y parecía un bug — resultó ser el CORS bloqueando
+   correctamente un origen (`localhost`) que no era el configurado para
+   producción. Comportamiento correcto, no un bug; se ajustó solo la
+   configuración local de prueba.
+2. Un bug real: los mensajes que aparecían en el chat no tenían ningún
+   estilo (sin color, sin alineación), porque Astro aísla el CSS de cada
+   componente agregándole un atributo automático a los elementos — pero
+   los mensajes del chat se crean dinámicamente con JavaScript en el
+   navegador, así que nunca reciben ese atributo. Se resolvió marcando el
+   bloque de estilos del widget como `is:global`.
+
+### 5. Lo que queda en manos de Maicol
+
+El código está completo y probado, pero no va a funcionar hasta que Maicol
+haga un setup de una sola vez: crear una cuenta gratuita de Cloudflare,
+generar un API token y conseguir su Account ID, generar una API key de
+Gemini, y cargar todo eso como secrets en GitHub. Cada paso, con capturas
+de dónde hacer clic, quedó documentado en `worker/README.md`. Hasta que ese
+setup esté hecho, el botón del chat simplemente no aparece en el sitio — es
+el comportamiento esperado (el widget no se renderiza sin la URL del
+backend configurada), no un error.
