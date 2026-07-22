@@ -34,16 +34,15 @@ El sitio es de una sola página (`/`) con las siguientes secciones:
 
 Incluye modo claro/oscuro, animaciones al hacer scroll, un tema de color
 propio ("Cyan Tech") no incluido en la plantilla original, y un **asistente
-virtual con IA** (ver más abajo) que responde preguntas sobre el perfil
-profesional usando únicamente la información real del portfolio.
+virtual** (ver más abajo) que responde preguntas sobre el perfil profesional
+usando únicamente la información real del portfolio.
 
 ## 🛠️ Stack técnico
 
 - **[Astro 6](https://astro.build/)** — sitio estático, sin JS de más
 - **[Tailwind CSS 4](https://tailwindcss.com/)** — estilos
 - **[astro-icon](https://www.astroicon.dev/) / [Iconify](https://iconify.design/)** — toda la iconografía (`mdi`, `simple-icons`, `skill-icons`, `devicon-plain`, `vscode-icons`)
-- **GitHub Actions + GitHub Pages** — build y despliegue automático en cada push a `main`
-- **Cloudflare Workers + Google Gemini** — backend del asistente virtual (ver [Asistente virtual](#-asistente-virtual-con-ia))
+- **GitHub Actions + GitHub Pages** — build y despliegue automático en cada push a `main`, sin backend de ningún tipo
 
 ## 🚀 Cómo correrlo en local
 
@@ -94,38 +93,37 @@ buildear).
 > ver [`CLAUDE.md`](CLAUDE.md). Para la historia completa de cómo se construyó
 > este sitio, sesión por sesión, ver [`HISTORIAL.md`](HISTORIAL.md).
 
-## 🤖 Asistente virtual con IA
+## 🤖 Asistente virtual (sin backend, sin IA generativa)
 
 Un chat flotante que responde preguntas sobre la experiencia, tecnologías y
-proyectos de Maicol, usando **Google Gemini** — pero solo con la información
-real de este portfolio, nunca con conocimiento externo ni datos inventados.
+proyectos de Maicol. Corre **100% en el navegador**: no hay servidor, no hay
+API key, no hay costo — funciona directamente en GitHub Pages.
 
-- **Frontend**: `src/components/chat-widget.astro` (botón flotante + panel,
-  no se renderiza si el backend no está configurado).
-- **Backend**: un **Cloudflare Worker** separado (carpeta `worker/`), porque
-  GitHub Pages no puede ejecutar servidor y la API key de Gemini nunca puede
-  vivir en el frontend. El sitio estático sigue igual, sin cambios de hosting.
-- **Base de conocimiento**: no hay base de datos — el Worker lee directamente
-  los mismos JSON de `src/data/` (experiencia, proyectos, tecnologías, etc.),
-  así que agregar un proyecto nuevo lo pone disponible para el chat sin tocar
-  el backend.
-- **Seguridad**: la API key vive solo como secreto del Worker, CORS
-  restringido al dominio del portfolio, rate limiting por IP, y filtro
-  anti prompt-injection.
-
-Guía completa de configuración (cuenta de Cloudflare, secrets, despliegue):
-**[`worker/README.md`](worker/README.md)**.
+- **Cómo funciona**: `src/utils/chatKnowledge.js` arma una base de
+  conocimiento en tiempo de build, leyendo directamente los mismos JSON de
+  `src/data/` (experiencia, proyectos, tecnologías, educación, etc.) — así
+  que agregar un proyecto nuevo lo pone disponible para el chat
+  automáticamente. Esa base se embebe en la página, y
+  `src/utils/chatRetrieval.js` busca los fragmentos más relevantes según las
+  palabras clave de la pregunta (sin conexión a internet ni modelo de IA).
+- **Por qué no usa IA generativa**: usar un modelo como Gemini de forma
+  segura requiere esconder una API key en un backend, y GitHub Pages no
+  puede ejecutar servidor. Ante esa disyuntiva, se optó por un asistente
+  100% estático en vez de agregar infraestructura de backend.
+- **Limitación conocida**: al ser búsqueda por palabras clave (sin
+  comprensión real del lenguaje), puede responder con información
+  tangencialmente relacionada cuando una pregunta usa una palabra común que
+  también aparece en el contenido real (por ejemplo, "equipo" aparece tanto
+  en un hipotético "equipo de fútbol" como en "trabajo en equipo" del CV).
+  Es un costo aceptado a cambio de no tener backend ni costos de API.
+- **Componente**: `src/components/chat-widget.astro` (botón flotante + panel).
 
 ## 🌐 Despliegue
 
-El sitio se despliega solo a **GitHub Pages** vía GitHub Actions
-(`.github/workflows/deploy.yml`) cada vez que se hace push a `main`. No
-requiere ningún paso manual adicional una vez configurado.
-
-El backend del chat se despliega por separado a **Cloudflare Workers** vía
-`.github/workflows/deploy-worker.yml`, solo cuando cambia algo en `worker/`
-o en `src/data/`. Ver [`worker/README.md`](worker/README.md) para el setup
-inicial (requiere una cuenta gratuita de Cloudflare).
+El sitio (incluido el asistente) se despliega completo a **GitHub Pages**
+vía GitHub Actions (`.github/workflows/deploy.yml`) cada vez que se hace
+push a `main`. No requiere ningún paso manual adicional, ninguna cuenta
+externa, ni ningún secreto.
 
 ## 🙏 Créditos
 

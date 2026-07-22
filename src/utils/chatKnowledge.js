@@ -1,28 +1,20 @@
-// Builds the chatbot's knowledge base directly from the site's own data
+// Builds the static chat's knowledge base directly from the site's own data
 // files (single source of truth — adding a project to src/data/projects.json
-// makes it available to the chat automatically, no prompt changes needed).
-import home from '../../src/data/home.json' with { type: 'json' };
-import about from '../../src/data/about.json' with { type: 'json' };
-import career from '../../src/data/career.json' with { type: 'json' };
-import education from '../../src/data/education.json' with { type: 'json' };
-import certifications from '../../src/data/certifications.json' with { type: 'json' };
-import skills from '../../src/data/skills.json' with { type: 'json' };
-import tech from '../../src/data/tech.json' with { type: 'json' };
-import projects from '../../src/data/projects.json' with { type: 'json' };
-
-function normalize(text) {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(new RegExp('[\\u0300-\\u036f]', 'g'), '');
-}
+// makes it available to the chat automatically, no other changes needed).
+// Runs at BUILD TIME only (imported from chat-widget.astro's frontmatter);
+// the resulting plain JSON is what actually ships to the browser.
+import home from '../data/home.json';
+import about from '../data/about.json';
+import career from '../data/career.json';
+import education from '../data/education.json';
+import certifications from '../data/certifications.json';
+import skills from '../data/skills.json';
+import tech from '../data/tech.json';
+import projects from '../data/projects.json';
+import { stemsOf } from './chatRetrieval.js';
 
 function keywordsFrom(...texts) {
-  const words = normalize(texts.filter(Boolean).join(' '))
-    .replace(/[^a-z0-9\s]/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length > 2);
-  return Array.from(new Set(words));
+  return Array.from(new Set(stemsOf(texts.filter(Boolean).join(' '))));
 }
 
 export function buildKnowledgeBase() {
@@ -55,6 +47,10 @@ export function buildKnowledgeBase() {
       category: 'Educación',
       title: edu.degree,
       text: `${edu.degree} — ${edu.institution} (${edu.period}).`,
+      // Search synonyms only (not shown to the visitor) — the question
+      // "¿dónde estudiaste?" doesn't share a single literal word with the
+      // displayed text above, so retrieval would otherwise miss it.
+      synonyms: 'estudios estudiaste estudio universidad carrera titulo graduado formacion academica colegio escuela',
     });
   }
 
@@ -90,11 +86,12 @@ export function buildKnowledgeBase() {
       category: 'Contacto',
       title: 'Información de contacto',
       text: contacts.map((s) => `${s.name}: ${s.url.replace('mailto:', '')}`).join(' | '),
+      synonyms: 'contacto contactar contactarte escribir escribirte mensaje comunicarme comunicarte hablar red social',
     });
   }
 
-  return chunks.map((chunk) => ({
+  return chunks.map(({ synonyms, ...chunk }) => ({
     ...chunk,
-    keywords: keywordsFrom(chunk.title, chunk.text, chunk.category),
+    keywords: keywordsFrom(chunk.title, chunk.text, chunk.category, synonyms),
   }));
 }

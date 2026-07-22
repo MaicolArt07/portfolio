@@ -207,13 +207,72 @@ En el camino se encontraron y corrigieron dos cosas:
    navegador, así que nunca reciben ese atributo. Se resolvió marcando el
    bloque de estilos del widget como `is:global`.
 
-### 5. Lo que queda en manos de Maicol
+### 5. Lo que quedaba en manos de Maicol (spoiler: cambió de planes)
 
-El código está completo y probado, pero no va a funcionar hasta que Maicol
-haga un setup de una sola vez: crear una cuenta gratuita de Cloudflare,
-generar un API token y conseguir su Account ID, generar una API key de
-Gemini, y cargar todo eso como secrets en GitHub. Cada paso, con capturas
-de dónde hacer clic, quedó documentado en `worker/README.md`. Hasta que ese
-setup esté hecho, el botón del chat simplemente no aparece en el sitio — es
-el comportamiento esperado (el widget no se renderiza sin la URL del
-backend configurada), no un error.
+El código estaba completo y probado, pero no iba a funcionar hasta que
+Maicol hiciera un setup de una sola vez: cuenta de Cloudflare, API token,
+Account ID, API key de Gemini, y cargar todo eso como secrets en GitHub.
+
+Maicol vio el sitio sin el botón del chat (esperado, ya que faltaba ese
+setup) y preguntó dónde estaba. Al explicarle que necesitaba completar el
+setup de Cloudflare, contestó algo muy directo: **no quería un backend**.
+Le pregunté si prefería igual tener IA real en otra plataforma (que de
+todas formas iba a requerir una cuenta y algo de configuración) o un chat
+sin IA generativa que funcione ya mismo sin nada externo. Eligió lo
+segundo, y de paso pidió borrar el código del Worker que ya no se iba a usar.
+
+### 6. De "chat con Gemini" a "asistente estático por palabras clave"
+
+Se replanteó el asistente desde cero, esta vez sin ningún tipo de backend:
+
+- **`src/utils/chatKnowledge.js`**: arma la base de conocimiento en tiempo
+  de build, importando directamente los mismos JSON de `src/data/` que ya
+  alimentan el resto del sitio. Esto preserva exactamente lo que Maicol
+  había pedido desde el principio del proyecto Gemini: agregar un proyecto
+  nuevo lo hace disponible para el chat sin tocar ningún código.
+- **`src/utils/chatRetrieval.js`**: corre enteramente en el navegador de
+  quien visita el sitio. Busca coincidencias de palabras clave entre la
+  pregunta y los fragmentos de la base de conocimiento — sin modelo de IA,
+  sin llamada de red, sin costo, sin cuenta de ningún proveedor.
+- El widget de chat pasó de depender de una variable de entorno (URL del
+  backend) a renderizarse siempre, ya que no depende de nada externo.
+
+Al probar esta nueva versión con preguntas reales aparecieron varios
+problemas genuinos que se fueron corrigiendo uno por uno:
+
+1. Un filtro de saludos usaba `.includes('hi')`, que hacía match por
+   accidente dentro de la palabra "hiciste" — cualquier pregunta sobre
+   "¿qué proyectos hiciste?" disparaba la respuesta de saludo en vez de
+   buscar información real. Se corrigió usando límites de palabra
+   (expresiones regulares con `\b`).
+2. Palabras muy comunes en español ("que", "donde", "como") se contaban
+   como palabras clave legítimas, así que textos largos (la bio, los
+   logros de un puesto) ganaban por pura cantidad de palabras en común,
+   ahogando coincidencias más específicas y relevantes. Se agregó una
+   lista de stopwords en español e inglés para filtrarlas.
+3. Preguntas razonables como "¿dónde estudiaste?" o "¿cómo te contacto?"
+   no encontraban nada, porque el texto de esos datos no contiene
+   literalmente esas palabras (dice "Universidad Privada Cumbre", no
+   "estudié"). Se agregaron sinónimos de búsqueda (invisibles para quien
+   lee la respuesta, solo usados para encontrarla) a esas categorías.
+4. Nombres de proyecto en una sola palabra compuesta, como "CapitalLingo",
+   se tomaban como un único término larguísimo. Se agregó una separación de
+   palabras compuestas (CapitalLingo → "Capital Lingo") para que sean
+   buscables por sus partes reales.
+
+Quedó una limitación conocida y aceptada: como es búsqueda léxica pura, sin
+comprensión del significado, una palabra común que aparece tanto en una
+pregunta fuera de tema como en contenido real puede generar una respuesta
+tangencialmente relacionada en vez del mensaje de "no tengo información"
+(el ejemplo real encontrado: preguntar por el "mejor equipo de fútbol"
+coincide con la habilidad real "Trabajo en Equipo" y con la palabra
+"equipo" en la bio). Perseguir cada caso de este tipo no tiene un punto
+final claro sin agregar comprensión real del lenguaje — exactamente lo que
+Maicol pidió evitar — así que se documentó como limitación conocida en vez
+de seguir iterando sobre ella.
+
+Por último, al borrar la carpeta `worker/` aparecieron varios procesos
+`wrangler dev` de sesiones de prueba anteriores que habían quedado
+corriendo en segundo plano y bloqueaban el borrado de archivos en Windows
+— se identificaron y cerraron antes de poder eliminar la carpeta por
+completo.

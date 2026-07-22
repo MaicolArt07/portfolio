@@ -1,7 +1,16 @@
 ---
 import { Icon } from 'astro-icon/components';
+import { buildKnowledgeBase } from '../utils/chatKnowledge.js';
 
-const CHAT_API_URL = import.meta.env.PUBLIC_CHAT_API_URL || '';
+// Built once at build time from the same JSON files that power the rest of
+// the site (src/data/) — adding a project there makes it searchable here
+// automatically. Runs 100% in the visitor's browser afterwards: no backend,
+// no API key, no network call. See src/utils/chatRetrieval.js for the
+// matching logic.
+const knowledgeBase = buildKnowledgeBase();
+// Escape "<" so a literal "</script>" inside any data string can't break out
+// of the embedding tag below.
+const knowledgeBaseJson = JSON.stringify(knowledgeBase).replace(/</g, '\\u003c');
 
 const suggestedQuestions = [
   '¿Cuál es tu experiencia profesional?',
@@ -13,8 +22,8 @@ const suggestedQuestions = [
 ];
 ---
 
-{CHAT_API_URL && (
-  <div id="chat-widget" data-api-url={CHAT_API_URL}>
+<div id="chat-widget">
+  <script type="application/json" id="chat-knowledge-data" is:inline set:html={knowledgeBaseJson} />
     <button id="chat-toggle" aria-label="Abrir asistente virtual" class="group">
       <Icon name="mdi:robot-happy-outline" class="w-6 h-6" />
       <span class="chat-toggle-label">Consulta mi experiencia</span>
@@ -65,7 +74,6 @@ const suggestedQuestions = [
       </form>
     </div>
   </div>
-)}
 
 <style is:global>
   /* Global: chat bubbles are created client-side via document.createElement,
@@ -335,11 +343,15 @@ const suggestedQuestions = [
 </style>
 
 <script>
+  import { answerQuestion } from '../utils/chatRetrieval.js';
+
   function initChatWidget() {
     const widget = document.getElementById('chat-widget');
     if (!widget) return;
 
-    const apiUrl = widget.dataset.apiUrl;
+    const knowledgeDataEl = document.getElementById('chat-knowledge-data');
+    const knowledgeBase = JSON.parse(knowledgeDataEl.textContent);
+
     const toggleBtn = document.getElementById('chat-toggle');
     const panel = document.getElementById('chat-panel');
     const closeBtn = document.getElementById('chat-close');
@@ -404,9 +416,10 @@ const suggestedQuestions = [
       errorEl.textContent = '';
     }
 
-    async function sendMessage(text) {
+    function sendMessage(text) {
       clearError();
       appendBubble('user', text);
+      const priorHistory = history.slice();
       history.push({ role: 'user', content: text });
       history = history.slice(-6);
 
@@ -416,31 +429,24 @@ const suggestedQuestions = [
 
       const typingEl = showTyping();
 
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: history.slice(0, -1) }),
-        });
-
-        const data = await response.json();
+      // No network call: this all runs synchronously against the knowledge
+      // base embedded in the page. A short artificial delay just keeps the
+      // typing indicator from flashing instantly on/off.
+      setTimeout(() => {
         typingEl.remove();
 
-        if (!response.ok || !data.success) {
-          showError(data.message || 'No fue posible procesar la consulta.');
-          return;
+        try {
+          const { text: answer, sources } = answerQuestion(knowledgeBase, text, priorHistory);
+          appendBubble('assistant', answer);
+          appendSources(sources);
+          history.push({ role: 'assistant', content: answer });
+          history = history.slice(-6);
+        } catch (err) {
+          showError('No fue posible procesar la consulta.');
+        } finally {
+          sendBtn.disabled = false;
         }
-
-        appendBubble('assistant', data.answer);
-        appendSources(data.sources);
-        history.push({ role: 'assistant', content: data.answer });
-        history = history.slice(-6);
-      } catch (err) {
-        typingEl.remove();
-        showError('No se pudo conectar con el asistente. Intenta de nuevo en un momento.');
-      } finally {
-        sendBtn.disabled = false;
-      }
+      }, 450);
     }
 
     toggleBtn?.addEventListener('click', () => {

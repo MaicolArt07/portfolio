@@ -7,13 +7,12 @@
 
 ## Documentación del proyecto
 
-Hay 5 documentos, cada uno con un rol distinto — no son redundantes:
+Hay 4 documentos, cada uno con un rol distinto — no son redundantes:
 
 - **`README.md`** — descripción pública del proyecto para quien visite el repo en GitHub.
 - **`TEMPLATE-README.md`** — README original de la plantilla Astro, conservado tal cual (créditos e instrucciones genéricas del autor original).
 - **`CLAUDE.md`** (este archivo) — estado técnico actual: qué está hecho, qué falta, reglas acordadas. Se lee automáticamente al abrir el proyecto en una sesión nueva.
 - **`HISTORIAL.md`** — relato narrativo de cómo se construyó todo, sesión por sesión (el "por qué", no el "qué hay ahora").
-- **`worker/README.md`** — guía de setup del backend del chat (cuenta Cloudflare, secrets, despliegue).
 
 ## Qué es este proyecto
 
@@ -51,9 +50,10 @@ capturas de pantalla con Playwright, sin errores de consola):
   Sistema Portfolio, Sistema de Liquidación, MediaStock, CapitalLingo, Flores
   y Detalles, PBT Feria).
 - ✅ `src/data/about.json` (nuevo) — bio de "Sobre mí" extraída a datos (antes
-  hardcodeada en el componente), para que el chat de IA la pueda leer también.
+  hardcodeada en el componente), para que el asistente virtual la pueda leer también.
 - ✅ Componentes nuevos: `about.astro`, `stats.astro`, `education.astro`,
-  `skills.astro`, `certifications.astro`, `chat-widget.astro`.
+  `skills.astro`, `certifications.astro`, `chat-widget.astro` (asistente
+  virtual 100% estático, sin backend — ver sección propia más abajo).
 - ✅ Componentes actualizados: `home.astro` (especialidades + botones
   Contactarme/Ver Proyectos), `career.astro` / `career-card.astro` (logros +
   iconos de tech), `projects.astro` / `project-card.astro` (estado vacío
@@ -84,12 +84,9 @@ Estadísticas → Educación → Certificaciones → Contacto.
    todavía (`images: []` en cada uno), así que muestran el placeholder por
    defecto. Agregar capturas a `src/assets/` y referenciarlas cuando estén
    disponibles.
-7. **Asistente virtual con IA — setup pendiente del usuario**: el código está
-   completo y probado, pero no funciona hasta que el usuario complete el
-   setup de Cloudflare (cuenta gratuita, API token, Account ID, API key de
-   Gemini) y agregue los secrets en GitHub. Guía paso a paso completa en
-   [`worker/README.md`](worker/README.md). Sin este setup, el botón del chat
-   simplemente no aparece en el sitio (comportamiento esperado, no es un bug).
+7. **Asistente virtual**: es 100% estático (sin backend, sin IA generativa,
+   sin costo) — ver sección propia más abajo. No requiere ninguna acción del
+   usuario, ya funciona en producción.
 
 ## Cómo agregar un proyecto nuevo
 
@@ -131,7 +128,7 @@ Editar `src/data/projects.json` (ya tiene 8 proyectos reales). Cada proyecto:
 | Contacto         | `home.json` (socials)               | `contact.astro`                         |
 | Navegación       | fijo en el componente               | `nav.astro`                             |
 | Tema/colores     | `config.ts` + `styles/global.css`   | —                                        |
-| Asistente IA     | `src/data/*.json` (vía el Worker)   | `chat-widget.astro` + `worker/`         |
+| Asistente virtual| `src/data/*.json` (leído en build)  | `chat-widget.astro`, `src/utils/chatKnowledge.js`, `src/utils/chatRetrieval.js` |
 
 ### Tema de color actual: **Cyan Tech**
 
@@ -187,38 +184,45 @@ npm run preview   # previsualizar el build
   que volver a correr el workflow (Actions → el run fallido → "Re-run all
   jobs") o hacer un push nuevo.
 
-## Asistente virtual con IA (Cloudflare Worker + Gemini)
+## Asistente virtual (100% estático, sin backend)
 
-Arquitectura completa en [`worker/README.md`](worker/README.md). Resumen:
+El usuario pidió originalmente un chat con Google Gemini (ver Sesión 2 en el
+historial), pero al enterarse de que un backend seguro requería crear una
+cuenta de Cloudflare y hacer setup, pidió explícitamente **no querer
+backend**. Se reemplazó por un asistente 100% estático:
 
-- **Por qué un Worker separado**: GitHub Pages no ejecuta backend, y la API
-  key de Gemini nunca puede vivir en el frontend. El sitio estático sigue
-  igual en GitHub Pages; el Worker es 100% independiente (repo `worker/`,
-  despliegue propio vía `.github/workflows/deploy-worker.yml`).
-- **Sin base de datos**: la base de conocimiento (`worker/src/knowledge.js`)
-  se construye en cada build importando directamente los JSON de
-  `src/data/` — agregar un proyecto nuevo lo hace disponible para el chat
-  automáticamente, sin tocar el Worker.
-- **Retrieval**: búsqueda simple por coincidencia de palabras clave
-  (`worker/src/retrieval.js`), sin vector DB ni embeddings — dejado así
-  a propósito para v1, con la arquitectura lista para agregar embeddings
-  después si hace falta.
-- **Seguridad**: CORS restringido al dominio del portfolio, rate limiting
-  por IP vía Cache API (sin KV), filtro anti prompt-injection antes de
-  llamar a Gemini, y un system prompt (`worker/src/prompt.js`) que instruye
-  al modelo a no inventar información y a no revelar credenciales/instrucciones.
-- **Probado sin necesitar una API key real**: 8 tests unitarios
-  (`worker/test/retrieval.test.mjs`, corren con `npm test` dentro de
-  `worker/`) más pruebas manuales end-to-end con `wrangler dev` (CORS,
-  rate limit, validación, filtro de inyección, manejo de errores de Gemini)
-  — todo verificado. Lo único que no se probó es una respuesta real de
-  Gemini, porque eso requiere la API key real del usuario, que nunca debe
-  pasarse en la conversación con Claude.
-- **Setup pendiente del usuario**: cuenta de Cloudflare, API token, Account
-  ID, API key de Gemini, y 3 secrets + 1 variable en GitHub. Paso a paso en
-  `worker/README.md`. Sin esto, el botón del chat no aparece (comportamiento
-  esperado — `chat-widget.astro` no renderiza nada si `PUBLIC_CHAT_API_URL`
-  no está configurada).
+- **`src/utils/chatKnowledge.js`**: en tiempo de build, importa los mismos
+  JSON de `src/data/` (career, projects, tech, education, skills,
+  certifications, home, about) y arma "chunks" de texto con categoría +
+  título + palabras clave. Agregar un proyecto nuevo lo pone disponible para
+  el chat automáticamente, sin tocar este archivo.
+- **`src/utils/chatRetrieval.js`**: corre en el navegador. Normaliza y
+  "stemea" (trunca a 6 caracteres) tanto la pregunta como las keywords de
+  cada chunk para tolerar conjugaciones (contactar/contacto/contactarte),
+  filtra stopwords en español/inglés para que palabras comunes no
+  distorsionen el puntaje, y separa nombres compuestos tipo CamelCase
+  ("CapitalLingo" → "Capital Lingo") para que sean buscables por sus partes.
+  Además maneja saludos/agradecimientos/"quién sos" con respuestas fijas
+  antes de intentar el matching por palabras clave.
+- **`chat-widget.astro`**: la base de conocimiento se serializa como JSON y
+  se embebe en la página (`<script type="application/json">`, con `<`
+  escapado para que no se pueda romper el tag). El widget siempre se
+  renderiza — no depende de ninguna variable de entorno ni backend.
+- **Limitación conocida (aceptada por el usuario)**: sin comprensión real del
+  lenguaje, palabras comunes que aparecen tanto en preguntas irrelevantes
+  como en contenido real del CV pueden generar coincidencias tangenciales
+  (ej. "equipo" en "equipo de fútbol" coincide con "trabajo en equipo" de
+  una habilidad real). No se buscó eliminar esto por completo — perseguir
+  cada colisión de palabras comunes requeriría o bien una lista de stopwords
+  interminable, o comprensión semántica real (justo lo que el usuario pidió
+  evitar).
+- **Verificación**: se depuraron bugs reales durante las pruebas (un filtro
+  de saludo que hacía match de "hi" dentro de "hiciste" por substring sin
+  límites de palabra; puntajes distorsionados por stopwords como "que" que
+  ahogaban las coincidencias específicas) usando un script Node standalone
+  y luego `page.evaluate()` en Playwright contra el build real, ya que
+  `chatKnowledge.js` usa imports de JSON sin aserción de tipo (consistente
+  con el resto del código) y por eso no corre en Node puro sin flags.
 
 ## Historial de sesiones
 
@@ -291,3 +295,23 @@ por JavaScript del lado del cliente; se resolvió con `is:global`.
 El setup final (cuenta de Cloudflare, secrets, primer despliegue) quedó
 documentado paso a paso en `worker/README.md`, ya que requiere credenciales
 que el usuario debe cargar él mismo, nunca a través de la conversación.
+
+Después de ver que el chat no aparecía en el sitio (esperando ese setup),
+el usuario preguntó dónde estaba, y al explicarle que faltaba su parte del
+setup de Cloudflare, respondió que **no quería backend**. Se le explicó que
+sin backend no hay forma de llamar a Gemini de forma segura, y se le
+preguntó si prefería un chat estático (sin IA generativa) o buscar otra
+plataforma sin Cloudflare — eligió el chat estático, y pidió eliminar el
+código del Worker ya que no se iba a usar.
+
+Se eliminó por completo `worker/` y `deploy-worker.yml`, y se reconstruyó
+el asistente como 100% estático: `src/utils/chatKnowledge.js` (arma la base
+de conocimiento en build time desde los mismos JSON de `src/data/`) y
+`src/utils/chatRetrieval.js` (busca por palabras clave en el navegador, sin
+red, sin IA, sin costo) — ver sección "Asistente virtual" arriba para el
+detalle técnico completo, incluidos los bugs reales encontrados y
+corregidos durante las pruebas. Al limpiar el código del Worker se
+encontraron y cerraron varios procesos `wrangler dev` que habían quedado
+corriendo de sesiones de prueba anteriores (bloqueaban el borrado de la
+carpeta) — quedó como recordatorio de matar explícitamente los procesos
+hijos, no solo el proceso padre, al terminar de probar servidores locales.
