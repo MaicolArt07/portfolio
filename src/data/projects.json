@@ -1,1 +1,70 @@
-[]
+[
+  {
+    "title": "SIAC ERP",
+    "description": "ERP empresarial con arquitectura modular para administrar procesos administrativos y operativos de una empresa desde una sola plataforma. Desarrollo de nuevos módulos, APIs, seguridad, reportes y optimización de consultas sobre SQL Server.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "SQL Server"],
+    "platforms": ["web"],
+    "category": "ERP Empresarial",
+    "status": "En producción",
+    "demoUrl": "https://siac.com.bo"
+  },
+  {
+    "title": "SIAC Condominios",
+    "description": "Plataforma para la administración integral de condominios: gestión de copropietarios, pagos y expensas, control de morosidad, reservas de áreas comunes, control de visitas por código QR, reportes en PDF y panel administrativo. Arquitectura híbrida con Laravel, Livewire, MySQL y SQL Server.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "MySQL", "SQL Server"],
+    "platforms": ["web"],
+    "category": "Sistema Administrativo",
+    "status": "En producción",
+    "demoUrl": "https://condominios.siac.com.bo"
+  },
+  {
+    "title": "Sistema Portfolio",
+    "description": "Plataforma interna para la administración de proyectos, clientes, desarrolladores y tecnologías de la empresa, con CRUD completo, gestión de imágenes y panel administrativo.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "Astro"],
+    "platforms": ["web"],
+    "category": "Panel Administrativo"
+  },
+  {
+    "title": "Sistema de Liquidación",
+    "description": "Sistema de liquidación de inventario con catálogo por marcas y familias, control de stock, descuentos, cotizaciones y carrito de compras. Frontend desacoplado que consume una API REST, con manejo de roles y panel de administración.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "Astro", "MySQL"],
+    "platforms": ["web"],
+    "category": "Sistema de Ventas e Inventario"
+  },
+  {
+    "title": "MediaStock",
+    "description": "Plataforma de catálogo y gestión de contenido multimedia, con organización de recursos y foco en experiencia de usuario. Desarrollo frontend, backend y optimización de rendimiento.",
+    "images": [],
+    "tech": [],
+    "platforms": ["web"],
+    "category": "Gestión de Contenido Multimedia"
+  },
+  {
+    "title": "CapitalLingo",
+    "description": "Sitio en WordPress especializado en contenido de finanzas e iGaming, con personalización de temas y plugins, integraciones y optimización de rendimiento.",
+    "images": [],
+    "tech": ["WordPress"],
+    "platforms": ["web"],
+    "category": "Sitio Web WordPress"
+  },
+  {
+    "title": "Flores y Detalles",
+    "description": "Tienda en línea con catálogo de productos, carrito de compras, gestión de pedidos y formularios de contacto.",
+    "images": [],
+    "tech": ["PHP", "JavaScript", "CSS", "HTML"],
+    "platforms": ["web"],
+    "category": "E-commerce"
+  },
+  {
+    "title": "PBT Feria",
+    "description": "Landing page institucional desarrollada para una feria de la empresa, con foco en optimización y publicación.",
+    "images": [],
+    "tech": [],
+    "platforms": ["web"],
+    "category": "Sitio Institucional"
+  }
+]
