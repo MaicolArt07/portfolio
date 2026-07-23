@@ -2,61 +2,108 @@
 // files (single source of truth — adding a project to src/data/projects.json
 // makes it available to the chat automatically, no other changes needed).
 // Runs at BUILD TIME only (imported from chat-widget.astro's frontmatter);
-// the resulting plain JSON is what actually ships to the browser.
-import home from '../data/home.json';
-import about from '../data/about.json';
-import career from '../data/career.json';
-import education from '../data/education.json';
-import certifications from '../data/certifications.json';
-import skills from '../data/skills.json';
-import tech from '../data/tech.json';
-import projects from '../data/projects.json';
+// the resulting plain JSON is what actually ships to the browser. Bilingual:
+// pass lang: 'es' | 'en' to build the base in that language.
+import esHome from '../data/home.json';
+import esAbout from '../data/about.json';
+import esCareer from '../data/career.json';
+import esEducation from '../data/education.json';
+import esCertifications from '../data/certifications.json';
+import esSkills from '../data/skills.json';
+import esTech from '../data/tech.json';
+import esProjects from '../data/projects.json';
+
+import enHome from '../data/en/home.json';
+import enAbout from '../data/en/about.json';
+import enCareer from '../data/en/career.json';
+import enEducation from '../data/en/education.json';
+import enCertifications from '../data/en/certifications.json';
+import enSkills from '../data/en/skills.json';
+import enTech from '../data/en/tech.json';
+import enProjects from '../data/en/projects.json';
+
 import { stemsOf } from './chatRetrieval.js';
+
+const DATA = {
+  es: {
+    home: esHome, about: esAbout, career: esCareer, education: esEducation,
+    certifications: esCertifications, skills: esSkills, tech: esTech, projects: esProjects,
+  },
+  en: {
+    home: enHome, about: enAbout, career: enCareer, education: enEducation,
+    certifications: enCertifications, skills: enSkills, tech: enTech, projects: enProjects,
+  },
+};
+
+const LABELS = {
+  es: {
+    profile: 'Perfil', experience: 'Experiencia', project: 'Proyecto',
+    education: 'Educación', certification: 'Certificación', skill: 'Habilidad',
+    tech: 'Tecnología', contact: 'Contacto', contactInfoTitle: 'Información de contacto',
+    specialties: 'Especialidades', at: 'en', techUsed: 'Tecnologías utilizadas',
+    projectWord: 'Proyecto', techLabel: 'Tecnologías', unspecifiedTech: 'no especificadas en el portfolio',
+    status: 'Estado', techOf: 'Tecnologías de',
+    educationSynonyms: 'estudios estudiaste estudio universidad carrera titulo graduado formacion academica colegio escuela',
+    contactSynonyms: 'contacto contactar contactarte escribir escribirte mensaje comunicarme comunicarte hablar red social',
+  },
+  en: {
+    profile: 'Profile', experience: 'Experience', project: 'Project',
+    education: 'Education', certification: 'Certification', skill: 'Skill',
+    tech: 'Technology', contact: 'Contact', contactInfoTitle: 'Contact information',
+    specialties: 'Specialties', at: 'at', techUsed: 'Technologies used',
+    projectWord: 'Project', techLabel: 'Technologies', unspecifiedTech: 'not specified in the portfolio',
+    status: 'Status', techOf: 'Technologies of',
+    educationSynonyms: 'studies studied study university degree college school graduated academic',
+    contactSynonyms: 'contact reach message write email talk social',
+  },
+};
 
 function keywordsFrom(...texts) {
   return Array.from(new Set(stemsOf(texts.filter(Boolean).join(' '))));
 }
 
-export function buildKnowledgeBase() {
+export function buildKnowledgeBase(lang = 'es') {
+  const { home, about, career, education, certifications, skills, tech, projects } = DATA[lang] || DATA.es;
+  const L = LABELS[lang] || LABELS.es;
   const chunks = [];
 
   chunks.push({
-    category: 'Perfil',
+    category: L.profile,
     title: home.name,
-    text: `${home.name} — ${home.role}. Especialidades: ${(home.specialties || []).join(', ')}. ${about.paragraphs.join(' ')}`,
+    text: `${home.name} — ${home.role}. ${L.specialties}: ${(home.specialties || []).join(', ')}. ${about.paragraphs.join(' ')}`,
   });
 
   for (const job of career) {
     chunks.push({
-      category: 'Experiencia',
-      title: `${job.role} en ${job.company}`,
-      text: `${job.role} en ${job.company} (${job.period}). ${job.achievements.join(' ')} Tecnologías utilizadas: ${job.tech.join(', ')}.`,
+      category: L.experience,
+      title: `${job.role} ${L.at} ${job.company}`,
+      text: `${job.role} ${L.at} ${job.company} (${job.period}). ${job.achievements.join(' ')} ${L.techUsed}: ${job.tech.join(', ')}.`,
     });
   }
 
   for (const project of projects) {
     chunks.push({
-      category: 'Proyecto',
+      category: L.project,
       title: project.title,
-      text: `Proyecto "${project.title}" (${project.category}). ${project.description} Tecnologías: ${(project.tech || []).join(', ') || 'no especificadas en el portfolio'}.${project.status ? ` Estado: ${project.status}.` : ''}`,
+      text: `${L.projectWord} "${project.title}" (${project.category}). ${project.description} ${L.techLabel}: ${(project.tech || []).join(', ') || L.unspecifiedTech}.${project.status ? ` ${L.status}: ${project.status}.` : ''}`,
     });
   }
 
   for (const edu of education) {
     chunks.push({
-      category: 'Educación',
+      category: L.education,
       title: edu.degree,
       text: `${edu.degree} — ${edu.institution} (${edu.period}).`,
-      // Search synonyms only (not shown to the visitor) — the question
-      // "¿dónde estudiaste?" doesn't share a single literal word with the
+      // Search synonyms only (not shown to the visitor) — a question like
+      // "where did you study?" doesn't share a literal word with the
       // displayed text above, so retrieval would otherwise miss it.
-      synonyms: 'estudios estudiaste estudio universidad carrera titulo graduado formacion academica colegio escuela',
+      synonyms: L.educationSynonyms,
     });
   }
 
   for (const cert of certifications) {
     chunks.push({
-      category: 'Certificación',
+      category: L.certification,
       title: cert.title,
       text: `${cert.title} — ${cert.issuer}.`,
     });
@@ -64,7 +111,7 @@ export function buildKnowledgeBase() {
 
   for (const skill of skills) {
     chunks.push({
-      category: 'Habilidad',
+      category: L.skill,
       title: skill.name,
       text: `${skill.name}: ${skill.description}`,
     });
@@ -72,9 +119,9 @@ export function buildKnowledgeBase() {
 
   for (const category of tech.categories) {
     chunks.push({
-      category: 'Tecnología',
+      category: L.tech,
       title: category.title,
-      text: `Tecnologías de ${category.title}: ${category.skills.map((s) => s.name).join(', ')}.`,
+      text: `${L.techOf} ${category.title}: ${category.skills.map((s) => s.name).join(', ')}.`,
     });
   }
 
@@ -83,10 +130,10 @@ export function buildKnowledgeBase() {
   );
   if (contacts.length) {
     chunks.push({
-      category: 'Contacto',
-      title: 'Información de contacto',
+      category: L.contact,
+      title: L.contactInfoTitle,
       text: contacts.map((s) => `${s.name}: ${s.url.replace('mailto:', '')}`).join(' | '),
-      synonyms: 'contacto contactar contactarte escribir escribirte mensaje comunicarme comunicarte hablar red social',
+      synonyms: L.contactSynonyms,
     });
   }
 

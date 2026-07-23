@@ -1,0 +1,70 @@
+[
+  {
+    "title": "SIAC ERP",
+    "description": "Enterprise ERP with a modular architecture to manage a company's administrative and operational processes from a single platform. Development of new modules, APIs, security, reports, and SQL Server query optimization.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "SQL Server"],
+    "platforms": ["web"],
+    "category": "Enterprise ERP",
+    "status": "In production",
+    "demoUrl": "https://siac.com.bo"
+  },
+  {
+    "title": "SIAC Condominios",
+    "description": "Platform for comprehensive condominium management: co-owner administration, payments and dues, delinquency tracking, common area reservations, QR-code visitor control, PDF reports, and an admin panel. Hybrid architecture with Laravel, Livewire, MySQL, and SQL Server.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "MySQL", "SQL Server"],
+    "platforms": ["web"],
+    "category": "Administrative System",
+    "status": "In production",
+    "demoUrl": "https://condominios.siac.com.bo"
+  },
+  {
+    "title": "Sistema Portfolio",
+    "description": "Internal platform for managing the company's projects, clients, developers, and technologies, with full CRUD, image management, and an admin panel.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "Astro"],
+    "platforms": ["web"],
+    "category": "Admin Panel"
+  },
+  {
+    "title": "Sistema de Liquidación",
+    "description": "Inventory clearance system with a catalog organized by brands and families, stock control, discounts, quotes, and a shopping cart. Decoupled frontend consuming a REST API, with role management and an admin panel.",
+    "images": [],
+    "tech": ["Laravel", "Livewire", "Astro", "MySQL"],
+    "platforms": ["web"],
+    "category": "Sales & Inventory System"
+  },
+  {
+    "title": "MediaStock",
+    "description": "Platform for cataloging and managing multimedia content, with resource organization and a focus on user experience. Frontend and backend development, plus performance optimization.",
+    "images": [],
+    "tech": [],
+    "platforms": ["web"],
+    "category": "Multimedia Content Management"
+  },
+  {
+    "title": "CapitalLingo",
+    "description": "WordPress site specialized in finance and iGaming content, with theme and plugin customization, integrations, and performance optimization.",
+    "images": [],
+    "tech": ["WordPress"],
+    "platforms": ["web"],
+    "category": "WordPress Website"
+  },
+  {
+    "title": "Flores y Detalles",
+    "description": "Online store with a product catalog, shopping cart, order management, and contact forms.",
+    "images": [],
+    "tech": ["PHP", "JavaScript", "CSS", "HTML"],
+    "platforms": ["web"],
+    "category": "E-commerce"
+  },
+  {
+    "title": "PBT Feria",
+    "description": "Institutional landing page developed for a company trade fair, focused on optimization and publishing.",
+    "images": [],
+    "tech": [],
+    "platforms": ["web"],
+    "category": "Institutional Website"
+  }
+]

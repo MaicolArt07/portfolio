@@ -1,32 +1,41 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ProjectCard from './project-card.astro';
-import projectsData from '../data/projects.json';
+import esProjectsData from '../data/projects.json';
+import enProjectsData from '../data/en/projects.json';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const projectsData = lang === 'en' ? enProjectsData : esProjectsData;
 ---
 
 <section id="projects" class="section-container overflow-hidden">
   <div class="container mx-auto">
     <div class="mb-16 project-header">
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-          <span class="text-accent">/</span> Proyectos Destacados
+          <span class="text-accent">/</span> {t(lang, 'projects.title')}
         </h2>
       <p class="text-subtext font-body text-sm max-w-md">
-        Una selección de trabajo profesional, aplicaciones publicadas y prototipos.
+        {t(lang, 'projects.subtitle')}
       </p>
     </div>
 
     {projectsData.length > 0 ? (
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {projectsData.map((project) => (
-          <ProjectCard project={project} />
+          <ProjectCard project={project} lang={lang} />
         ))}
       </div>
     ) : (
       <div class="project-header border border-dashed border-accent/20 rounded-2xl py-20 px-6 flex flex-col items-center text-center gap-4">
         <Icon name="mdi:rocket-launch-outline" class="w-10 h-10 text-accent/60" />
-        <p class="text-maintext font-heading font-semibold">Próximamente</p>
+        <p class="text-maintext font-heading font-semibold">{t(lang, 'projects.comingSoonTitle')}</p>
         <p class="text-subtext text-sm max-w-sm">
-          Estoy preparando esta sección para mostrar mis proyectos. Vuelve pronto.
+          {t(lang, 'projects.comingSoonText')}
         </p>
       </div>
     )}

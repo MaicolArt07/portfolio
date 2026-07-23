@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Technical Leadership",
+    "icon": "mdi:account-tie",
+    "description": "Leadership of development teams (2 developers in charge)."
+  },
+  {
+    "name": "Agile Methodologies",
+    "icon": "mdi:sync",
+    "description": "Task planning with Scrum and Kanban, managed in Asana."
+  },
+  {
+    "name": "Software Architecture",
+    "icon": "mdi:sitemap",
+    "description": "Design of hybrid multi-database architectures (SQL Server + MySQL)."
+  },
+  {
+    "name": "SQL Optimization",
+    "icon": "mdi:database-cog",
+    "description": "Query and database performance optimization."
+  },
+  {
+    "name": "AI Automation",
+    "icon": "mdi:robot",
+    "description": "Implementation of AI-powered chat bots."
+  },
+  {
+    "name": "Problem Solving",
+    "icon": "mdi:puzzle",
+    "description": "Analysis, debugging, and code optimization in production."
+  },
+  {
+    "name": "Server Administration",
+    "icon": "mdi:server",
+    "description": "Hosting and deployment management (cPanel)."
+  },
+  {
+    "name": "Technical Documentation",
+    "icon": "mdi:file-document-edit",
+    "description": "Preparation of teaching materials and learning guides."
+  },
+  {
+    "name": "Teamwork",
+    "icon": "mdi:account-group",
+    "description": "Collaboration and coordination across multidisciplinary projects."
+  },
+  {
+    "name": "Technical Support",
+    "icon": "mdi:lifebuoy",
+    "description": "Resolution of production incidents."
+  }
+]

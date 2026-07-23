@@ -1,17 +1,26 @@
 ---
 // Import your data and the new component at the top of the file
-import careerData from '../data/career.json';
+import esCareerData from '../data/career.json';
+import enCareerData from '../data/en/career.json';
 import CareerCard from './career-card.astro';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const careerData = lang === 'en' ? enCareerData : esCareerData;
 ---
 
 <section id="career" class="section-container max-w-6xl mx-auto overflow-hidden">
   <div class="container mx-auto reveal-content" style="animation-delay: 1000ms;">
     <div>
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-        <span class="text-accent">/</span> Experiencia Profesional
+        <span class="text-accent">/</span> {t(lang, 'career.title')}
       </h2>
       <p class="text-subtext font-body text-sm max-w-md pb-8">
-        Mi trayectoria construyendo y liderando proyectos de software
+        {t(lang, 'career.subtitle')}
       </p>
     </div>
 
@@ -30,7 +39,7 @@ import CareerCard from './career-card.astro';
               </div>
             </div>
             
-            <CareerCard item={item} variant="mobile" />
+            <CareerCard item={item} variant="mobile" lang={lang} />
           </div>
         ))}
       </div>
@@ -49,14 +58,14 @@ import CareerCard from './career-card.astro';
             {/* Left Side (even items) */}
             <div class="md:px-6 md:py-0">
               {index % 2 === 0 ? (
-                <CareerCard item={item} variant="desktop-left" />
+                <CareerCard item={item} variant="desktop-left" lang={lang} />
               ) : <div class="h-full pointer-events-none"></div>}
             </div>
 
             {/* Right Side (odd items) */}
             <div class="md:px-6 md:py-0">
               {index % 2 !== 0 ? (
-                <CareerCard item={item} variant="desktop-right" />
+                <CareerCard item={item} variant="desktop-right" lang={lang} />
               ) : <div class="h-full pointer-events-none"></div>}
             </div>
           </div>

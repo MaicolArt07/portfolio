@@ -1,6 +1,8 @@
 ---
 import { Icon } from 'astro-icon/components';
-import techData from '../data/tech.json';
+import esTechData from '../data/tech.json';
+import enTechData from '../data/en/tech.json';
+import type { Lang } from '../i18n/ui';
 
 interface Props {
   item: {
@@ -12,9 +14,11 @@ interface Props {
     tech: string[];
   };
   variant: 'mobile' | 'desktop-left' | 'desktop-right';
+  lang?: Lang;
 }
 
-const { item, variant } = Astro.props;
+const { item, variant, lang = 'es' } = Astro.props;
+const techData = lang === 'en' ? enTechData : esTechData;
 
 const isLeft = variant === 'desktop-left';
 

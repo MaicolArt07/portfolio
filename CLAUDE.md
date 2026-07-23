@@ -23,7 +23,9 @@ Desarrollador Fullstack), basado en la plantilla Astro **"Career Portfolio"**
 - Stack: Astro 6 + Tailwind CSS 4 + astro-icon (Iconify)
 - Todo el contenido sale del CV real del usuario — **regla acordada: no inventar
   nada que no esté en el CV**. Si un dato no existe, se omite.
-- Idioma del sitio: español.
+- Idioma del sitio: **español e inglés** (ver sección "Sitio bilingüe" más abajo).
+  Español es el idioma por defecto/original; todo el contenido en inglés es
+  traducción.
 
 ## Estado actual — última sesión: 2026-07-21
 
@@ -129,6 +131,7 @@ Editar `src/data/projects.json` (ya tiene 8 proyectos reales). Cada proyecto:
 | Navegación       | fijo en el componente               | `nav.astro`                             |
 | Tema/colores     | `config.ts` + `styles/global.css`   | —                                        |
 | Asistente virtual| `src/data/*.json` (leído en build)  | `chat-widget.astro`, `src/utils/chatKnowledge.js`, `src/utils/chatRetrieval.js` |
+| Idioma (ES/EN)   | `src/data/en/*.json` + `src/i18n/ui.ts` | `lang-toggle.astro` + todos los componentes (prop `lang`) |
 
 ### Tema de color actual: **Cyan Tech**
 
@@ -224,6 +227,48 @@ backend**. Se reemplazó por un asistente 100% estático:
   `chatKnowledge.js` usa imports de JSON sin aserción de tipo (consistente
   con el resto del código) y por eso no corre en Node puro sin flags.
 
+## Sitio bilingüe (i18n)
+
+El sitio existe en dos idiomas completos, usando el **sistema de rutas i18n
+nativo de Astro** (no un toggle por JavaScript) — dos páginas estáticas
+reales, generadas en el build:
+
+- `astro.config.mjs` → `i18n: { locales: ['es','en'], defaultLocale: 'es',
+  routing: { prefixDefaultLocale: false } }`. Con esta config, español vive
+  en la raíz (`src/pages/index.astro` → `/portfolio/`) y no necesita carpeta
+  propia; inglés necesita su propia carpeta (`src/pages/en/index.astro` →
+  `/portfolio/en/`).
+- **Datos**: cada `src/data/X.json` tiene su par en `src/data/en/X.json`
+  (mismo esquema). Cada componente importa AMBOS archivos y elige uno según
+  el prop `lang` que recibe (`const data = lang === 'en' ? enData : esData`).
+  No hay traducción "en vivo" — son dos JSON estáticos separados.
+- **Textos fijos de la interfaz** (nav, botones, encabezados de sección,
+  placeholders, el chat): `src/i18n/ui.ts`, un diccionario `{ es: {...}, en:
+  {...} }` con una función `t(lang, key)`. Cualquier string hardcodeado que
+  aparezca en pantalla tiene que pasar por ahí, nunca quedar como texto
+  suelto en un componente.
+- **Cada componente recibe `lang` como prop** (`interface Props { lang?: Lang
+  }`, default `'es'`) y lo propaga a los componentes hijos que use
+  (`career.astro` → `career-card.astro`, `projects.astro` → `project-card.astro`).
+  `index.astro` y `en/index.astro` son casi idénticos: la única diferencia
+  real es `const lang = 'es'` vs `const lang = 'en'` y las rutas de import
+  (`../` vs `../../`).
+- **Selector de idioma**: `lang-toggle.astro`, al lado del theme-toggle.
+  Es un `<a>` a `getRelativeLocaleUrl(otroIdioma)` (de `astro:i18n`) — navega
+  a la página estática del otro idioma, no cambia texto por JS. Esa función
+  ya devuelve la URL con el `base` (`/portfolio/...`) incluido, verificado
+  antes de implementar todo lo demás.
+- **El asistente virtual también es bilingüe**: `chatKnowledge.js` y
+  `chatRetrieval.js` reciben `lang` y arman/responden en el idioma activo
+  (base de conocimiento en inglés + frases de saludo/agradecimiento/fallback
+  en inglés cuando `lang === 'en'`).
+- **`Layout.astro`** recibe `lang` y lo usa en `<html lang={lang}>`.
+
+Al agregar contenido nuevo (un proyecto, un logro, etc.), hay que actualizar
+**los dos archivos** (`src/data/X.json` y `src/data/en/X.json`) — si falta
+la versión en inglés, esa versión del sitio simplemente no va a mostrar ese
+ítem (no rompe el build, solo queda incompleto en ese idioma).
+
 ## Historial de sesiones
 
 ### Sesión 1 — 2026-07-21
@@ -315,3 +360,31 @@ encontraron y cerraron varios procesos `wrangler dev` que habían quedado
 corriendo de sesiones de prueba anteriores (bloqueaban el borrado de la
 carpeta) — quedó como recordatorio de matar explícitamente los procesos
 hijos, no solo el proceso padre, al terminar de probar servidores locales.
+
+### Sesión 3 — 2026-07-22
+El usuario pidió que el sitio esté disponible en español e inglés, sin
+backend. Se implementó con el sistema de rutas i18n nativo de Astro (dos
+páginas estáticas reales, `/` y `/en/`, no un toggle por JavaScript) — ver
+sección "Sitio bilingüe" arriba para el detalle completo.
+
+Se tradujo al inglés cada archivo de `src/data/` (guardados en paralelo bajo
+`src/data/en/`) y se extrajeron todos los textos fijos de los componentes
+(nav, botones, encabezados, placeholders, el chat) a un diccionario nuevo,
+`src/i18n/ui.ts`. Se refactorizaron los ~13 componentes de la página para
+recibir un prop `lang` y elegir entre datos/textos en español o inglés según
+corresponda, incluyendo propagar el prop a componentes hijos (`career.astro`
+→ `career-card.astro`, `projects.astro` → `project-card.astro`).
+
+El asistente virtual también se hizo bilingüe: `chatKnowledge.js` y
+`chatRetrieval.js` ahora reciben `lang` y arman la base de conocimiento y
+las respuestas fijas (saludo, agradecimiento, "no tengo información") en el
+idioma activo de la página.
+
+Antes de escribir el resto del código se verificó con una página de prueba
+mínima que `getRelativeLocaleUrl` de `astro:i18n` devuelve la URL ya
+incluyendo el `base` configurado (`/portfolio/en/`, no solo `/en/`) — evitó
+tener que descubrir esto a mitad de la implementación.
+
+Todo se verificó visualmente con Playwright en ambos idiomas: hero,
+experiencia, tecnologías, contacto y el chat (incluyendo una pregunta real
+respondida correctamente en inglés, con las fuentes también traducidas).

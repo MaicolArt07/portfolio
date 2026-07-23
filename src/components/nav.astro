@@ -1,46 +1,56 @@
 ---
 import { Icon } from 'astro-icon/components';
 import ThemeToggle from './theme-toggle.astro';
+import LangToggle from './lang-toggle.astro';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
 interface NavItem {
   label: string;
   href: string;
   icon: string;
 }
 
+const { lang = 'es' } = Astro.props;
+
 const navItems: NavItem[] = [
   {
-    label: "Inicio",
+    label: t(lang, 'nav.home'),
     href: "#home",
     icon: `mdi:home`,
   },
   {
-    label: "Sobre mí",
+    label: t(lang, 'nav.about'),
     href: "#about",
     icon: `mdi:account`,
   },
   {
-    label: "Experiencia",
+    label: t(lang, 'nav.career'),
     href: "#career",
     icon: `mdi:work`,
   },
   {
-    label: "Proyectos",
+    label: t(lang, 'nav.projects'),
     href: "#projects",
     icon: `mdi:computer`,
   },
   {
-    label: "Tecnología",
+    label: t(lang, 'nav.tech'),
     href: "#tech",
     icon: `mdi:code-tags`,
   },
   {
-    label: "Contacto",
+    label: t(lang, 'nav.contact'),
     href: "#contact",
     icon: `mdi:message`,
   }
 ];
 ---
-<div id="theme-toggle-wrapper" class="fixed top-4 right-4 z-50 md:top-4 md:right-4 reveal-content" style="animation-delay: 700ms;">
+<div id="theme-toggle-wrapper" class="fixed top-4 right-4 z-50 md:top-4 md:right-4 flex items-center gap-2 reveal-content" style="animation-delay: 700ms;">
+  <LangToggle lang={lang} />
   <ThemeToggle />
 </div>
 

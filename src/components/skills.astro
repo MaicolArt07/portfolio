@@ -1,16 +1,25 @@
 ---
 import { Icon } from 'astro-icon/components';
-import skillsData from '../data/skills.json';
+import esSkillsData from '../data/skills.json';
+import enSkillsData from '../data/en/skills.json';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const skillsData = lang === 'en' ? enSkillsData : esSkillsData;
 ---
 
 <section id="skills" class="section-container overflow-hidden">
   <div class="container mx-auto">
     <div class="skills-header mb-16">
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-        <span class="text-accent">/</span> Habilidades
+        <span class="text-accent">/</span> {t(lang, 'skills.title')}
       </h2>
       <p class="text-subtext font-body text-sm max-w-md">
-        Fortalezas que aplico en cada proyecto, más allá del código
+        {t(lang, 'skills.subtitle')}
       </p>
     </div>
 

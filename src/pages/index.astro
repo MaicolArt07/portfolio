@@ -37,19 +37,20 @@ if (isApiLive && BASE_URL) {
 }
 
 const { webpageTitle } = data;
+const lang = 'es';
 ---
 
-<Layout title={webpageTitle}>
-  	<Nav />
-	<Home />
-	<About />
-	<Career />
-	<Projects />
-	<Tech />
-	<Skills />
-	<Stats />
-	<Education />
-	<Certifications />
-	<Contact />
-	<ChatWidget />
+<Layout title={webpageTitle} lang={lang}>
+  	<Nav lang={lang} />
+	<Home lang={lang} />
+	<About lang={lang} />
+	<Career lang={lang} />
+	<Projects lang={lang} />
+	<Tech lang={lang} />
+	<Skills lang={lang} />
+	<Stats lang={lang} />
+	<Education lang={lang} />
+	<Certifications lang={lang} />
+	<Contact lang={lang} />
+	<ChatWidget lang={lang} />
 </Layout>

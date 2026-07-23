@@ -1,16 +1,25 @@
 ---
 import { Icon } from 'astro-icon/components';
-import educationData from '../data/education.json';
+import esEducationData from '../data/education.json';
+import enEducationData from '../data/en/education.json';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const educationData = lang === 'en' ? enEducationData : esEducationData;
 ---
 
 <section id="education" class="section-container max-w-4xl mx-auto">
   <div class="container mx-auto">
     <div class="education-header mb-12">
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-        <span class="text-accent">/</span> Educación
+        <span class="text-accent">/</span> {t(lang, 'education.title')}
       </h2>
       <p class="text-subtext font-body text-sm max-w-md">
-        Formación académica
+        {t(lang, 'education.subtitle')}
       </p>
     </div>
 

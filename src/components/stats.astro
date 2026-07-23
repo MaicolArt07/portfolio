@@ -1,13 +1,32 @@
 ---
 import { Icon } from 'astro-icon/components';
-import careerData from '../data/career.json';
-import techData from '../data/tech.json';
-import projectsData from '../data/projects.json';
-import certificationsData from '../data/certifications.json';
+import esCareerData from '../data/career.json';
+import esTechData from '../data/tech.json';
+import esProjectsData from '../data/projects.json';
+import esCertificationsData from '../data/certifications.json';
+import enCareerData from '../data/en/career.json';
+import enTechData from '../data/en/tech.json';
+import enProjectsData from '../data/en/projects.json';
+import enCertificationsData from '../data/en/certifications.json';
+import { t, type Lang } from '../i18n/ui';
 
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const careerData = lang === 'en' ? enCareerData : esCareerData;
+const techData = lang === 'en' ? enTechData : esTechData;
+const projectsData = lang === 'en' ? enProjectsData : esProjectsData;
+const certificationsData = lang === 'en' ? enCertificationsData : esCertificationsData;
+
+// Career periods are stored in the active language ("Mar 2026" / "Mar 2026"
+// — coincidentally the same for month abbreviations that don't change, but
+// "Dic"/"Dec", "Ene"/"Jan" etc. do), so parsing needs both month tables.
 const MONTHS: Record<string, number> = {
   ene: 0, feb: 1, mar: 2, abr: 3, may: 4, jun: 5,
   jul: 6, ago: 7, sep: 8, oct: 9, nov: 10, dic: 11,
+  jan: 0, apr: 3, aug: 7, dec: 11,
 };
 
 function parseStartDate(period: string): Date | null {
@@ -38,11 +57,11 @@ const projectsCount = projectsData.length;
 const certificationsCount = certificationsData.length;
 
 const stats = [
-  { icon: 'mdi:calendar-clock', value: yearsExperience, suffix: '+', label: 'Años de experiencia' },
-  { icon: 'mdi:domain', value: companiesCount, suffix: '', label: 'Empresas' },
-  { icon: 'mdi:code-tags', value: technologiesCount, suffix: '+', label: 'Tecnologías dominadas' },
-  { icon: 'mdi:rocket-launch', value: projectsCount, suffix: '', label: 'Proyectos realizados' },
-  { icon: 'mdi:certificate', value: certificationsCount, suffix: '', label: 'Certificaciones' },
+  { icon: 'mdi:calendar-clock', value: yearsExperience, suffix: '+', label: t(lang, 'stats.yearsExperience') },
+  { icon: 'mdi:domain', value: companiesCount, suffix: '', label: t(lang, 'stats.companies') },
+  { icon: 'mdi:code-tags', value: technologiesCount, suffix: '+', label: t(lang, 'stats.technologies') },
+  { icon: 'mdi:rocket-launch', value: projectsCount, suffix: '', label: t(lang, 'stats.projectsCompleted') },
+  { icon: 'mdi:certificate', value: certificationsCount, suffix: '', label: t(lang, 'stats.certifications') },
 ];
 ---
 

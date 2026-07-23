@@ -9,6 +9,13 @@ import icon from 'astro-icon';
 export default defineConfig({
   site: 'https://MaicolArt07.github.io',
   base: '/portfolio/',
+  i18n: {
+    locales: ['es', 'en'],
+    defaultLocale: 'es',
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   vite: {
     plugins: [tailwindcss()]
   },

@@ -1,8 +1,10 @@
 ---
 import { Icon } from 'astro-icon/components';
-const { project } = Astro.props;
 import { Image } from 'astro:assets';
 import { resolveAssetImage } from '../utils/images';
+import { t, type Lang } from '../i18n/ui';
+
+const { project, lang = 'es' as Lang } = Astro.props;
 
 // Map through the array of image strings from project JSON
 const optimizedImages = await Promise.all(
@@ -70,12 +72,12 @@ const status = project.status || null;
       </div>
       <div class="flex items-center gap-3 shrink-0">
         {repoUrl && (
-          <a href={repoUrl} target="_blank" class="text-accent/75 hover:text-accent transition-colors" aria-label="Repositorio">
+          <a href={repoUrl} target="_blank" class="text-accent/75 hover:text-accent transition-colors" aria-label={t(lang, 'projects.repoLabel')}>
             <Icon name="mdi:github" class="w-6 h-6" />
           </a>
         )}
         {demoUrl && (
-          <a href={demoUrl} target="_blank" class="text-accent/75 hover:text-accent transition-colors" aria-label="Demo">
+          <a href={demoUrl} target="_blank" class="text-accent/75 hover:text-accent transition-colors" aria-label={t(lang, 'projects.demoLabel')}>
             <Icon name="mdi:open-in-new" class="w-6 h-6" />
           </a>
         )}

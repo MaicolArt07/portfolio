@@ -276,3 +276,64 @@ Por último, al borrar la carpeta `worker/` aparecieron varios procesos
 corriendo en segundo plano y bloqueaban el borrado de archivos en Windows
 — se identificaron y cerraron antes de poder eliminar la carpeta por
 completo.
+
+---
+
+## Sesión 3 — 2026-07-22
+
+### Un sitio, dos idiomas
+
+Maicol pidió que el portfolio existiera en español e inglés, sin backend
+(coherente con la decisión que ya había tomado sobre el chat). Había dos
+caminos posibles: un toggle por JavaScript que cambia el texto en la misma
+página (más simple de implementar, pero cada idioma "no existe" como URL
+propia, mala para SEO y para compartir un link en un idioma específico), o
+páginas estáticas reales por idioma usando el sistema de rutas que Astro ya
+trae incorporado. Se eligió la segunda opción — es el enfoque estándar para
+sitios estáticos bilingües y no tiene ninguna desventaja real frente a la
+opción más simple, solo un poco más de trabajo de implementación.
+
+Antes de traducir una sola palabra, se armó una página de prueba mínima
+para confirmar cómo se comportaba el ruteo de Astro combinado con el
+`base: '/portfolio/'` que ya tenía el sitio (por vivir en GitHub Pages bajo
+un subpath). Confirmó que la función `getRelativeLocaleUrl` de Astro ya
+arma la URL completa correcta (`/portfolio/en/`, no solo `/en/`) — ahorró
+tener que descubrir esto a mitad de camino, con medio sitio ya traducido.
+
+### Cómo se armó
+
+Cada archivo de datos (`home.json`, `career.json`, `projects.json`, etc.)
+se tradujo a una copia paralela en `src/data/en/`, con el mismo esquema
+exacto — nada de mezclar idiomas en un solo archivo. Los textos que no
+viven en esos JSON (labels de navegación, textos de botones, encabezados de
+cada sección, placeholders de formularios, y todos los textos del chat) se
+extrajeron a un diccionario nuevo, `src/i18n/ui.ts`, con una función
+`t(idioma, clave)` para no dejar ningún texto suelto hardcodeado en un
+componente.
+
+Los ~13 componentes de la página se modificaron uno por uno para recibir
+un prop `lang` (por defecto español) y elegir entre los datos/textos en
+español o en inglés según ese valor. Donde un componente usa a otro
+internamente (`career.astro` arma cada tarjeta con `career-card.astro`,
+`projects.astro` con `project-card.astro`), había que acordarse de
+propagar el prop hacia abajo — un olvido ahí se traduce en una tarjeta que
+queda en el idioma equivocado sin que el build se queje.
+
+El asistente virtual (100% estático, de la sesión anterior) también se hizo
+bilingüe: tanto la base de conocimiento como las respuestas fijas (saludo,
+"gracias", "no tengo información sobre eso") ahora se arman en el idioma de
+la página activa, no solo en español.
+
+Por último, se armó un selector de idioma (un botón "ES"/"EN" al lado del
+toggle de tema) que simplemente enlaza a la versión del otro idioma de la
+misma página — sin JavaScript de por medio, es un link normal a una página
+estática real.
+
+### Verificación
+
+Se probó con Playwright navegando entre ambas versiones: se confirmó que
+`<html lang="...">` cambia correctamente, que cada sección (hero,
+experiencia, tecnologías, contacto) se ve traducida, y que el chat responde
+en inglés — incluyendo una pregunta real sobre Laravel, con las etiquetas
+de fuente ("Experience: Fullstack Developer at SIAC Condominios") también
+en inglés.

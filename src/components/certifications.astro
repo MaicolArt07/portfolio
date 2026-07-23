@@ -1,16 +1,25 @@
 ---
 import { Icon } from 'astro-icon/components';
-import certificationsData from '../data/certifications.json';
+import esCertificationsData from '../data/certifications.json';
+import enCertificationsData from '../data/en/certifications.json';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const certificationsData = lang === 'en' ? enCertificationsData : esCertificationsData;
 ---
 
 <section id="certifications" class="section-container">
   <div class="container mx-auto">
     <div class="cert-header mb-12">
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-        <span class="text-accent">/</span> Certificaciones
+        <span class="text-accent">/</span> {t(lang, 'certifications.title')}
       </h2>
       <p class="text-subtext font-body text-sm max-w-md">
-        Formación complementaria
+        {t(lang, 'certifications.subtitle')}
       </p>
     </div>
 

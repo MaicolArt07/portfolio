@@ -1,0 +1,34 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Nav from "../../components/nav.astro";
+import Home from "../../components/home.astro";
+import About from "../../components/about.astro";
+import Tech from "../../components/tech.astro";
+import Projects from "../../components/projects.astro";
+import Contact from "../../components/contact.astro";
+import Career from "../../components/career.astro";
+import Education from "../../components/education.astro";
+import Skills from "../../components/skills.astro";
+import Stats from "../../components/stats.astro";
+import Certifications from "../../components/certifications.astro";
+import ChatWidget from "../../components/chat-widget.astro";
+import localData from '../../data/en/home.json';
+
+const { webpageTitle } = localData;
+const lang = 'en';
+---
+
+<Layout title={webpageTitle} lang={lang}>
+  	<Nav lang={lang} />
+	<Home lang={lang} />
+	<About lang={lang} />
+	<Career lang={lang} />
+	<Projects lang={lang} />
+	<Tech lang={lang} />
+	<Skills lang={lang} />
+	<Stats lang={lang} />
+	<Education lang={lang} />
+	<Certifications lang={lang} />
+	<Contact lang={lang} />
+	<ChatWidget lang={lang} />
+</Layout>

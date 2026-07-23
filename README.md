@@ -1,6 +1,6 @@
 # Portfolio de Maicol Arteaga
 
-**🔴 Sitio en vivo:** [maicolart07.github.io/portfolio](https://maicolart07.github.io/portfolio/)
+**🔴 Sitio en vivo:** [maicolart07.github.io/portfolio](https://maicolart07.github.io/portfolio/) ([English version](https://maicolart07.github.io/portfolio/en/))
 
 Portfolio personal de **Maicol Erick Arteaga Guzmán**, Ingeniero de Sistemas y
 Desarrollador Fullstack (Bolivia). Construido sobre la plantilla Astro
@@ -33,9 +33,10 @@ El sitio es de una sola página (`/`) con las siguientes secciones:
 | **Contacto** | Formulario (abre el cliente de correo con el mensaje prellenado) + tarjetas de redes |
 
 Incluye modo claro/oscuro, animaciones al hacer scroll, un tema de color
-propio ("Cyan Tech") no incluido en la plantilla original, y un **asistente
+propio ("Cyan Tech") no incluido en la plantilla original, un **asistente
 virtual** (ver más abajo) que responde preguntas sobre el perfil profesional
-usando únicamente la información real del portfolio.
+usando únicamente la información real del portfolio, y el sitio completo
+disponible en **español e inglés** (botón ES/EN en la esquina superior).
 
 ## 🛠️ Stack técnico
 
@@ -93,6 +94,24 @@ buildear).
 > ver [`CLAUDE.md`](CLAUDE.md). Para la historia completa de cómo se construyó
 > este sitio, sesión por sesión, ver [`HISTORIAL.md`](HISTORIAL.md).
 
+## 🌐 Sitio bilingüe (español / inglés)
+
+Cada archivo de `src/data/*.json` tiene su versión en inglés en
+`src/data/en/*.json` (mismo esquema, mismos nombres de campo). El botón
+**ES/EN** en la esquina superior te lleva a la versión en el otro idioma
+(`/` para español, `/en/` para inglés) — son dos páginas estáticas reales,
+generadas con el sistema de rutas i18n nativo de Astro, no un cambio por
+JavaScript.
+
+| Quiero traducir... | Edito |
+|---|---|
+| Contenido (bio, experiencia, proyectos, etc.) | El archivo correspondiente en `src/data/en/` |
+| Textos fijos de la interfaz (botones, encabezados, chat) | `src/i18n/ui.ts` |
+
+Si agregás un proyecto nuevo en `src/data/projects.json`, no te olvides de
+agregar también su versión traducida en `src/data/en/projects.json` —
+si falta, esa versión del sitio simplemente no lo va a mostrar.
+
 ## 🤖 Asistente virtual (sin backend, sin IA generativa)
 
 Un chat flotante que responde preguntas sobre la experiencia, tecnologías y
@@ -106,6 +125,7 @@ API key, no hay costo — funciona directamente en GitHub Pages.
   automáticamente. Esa base se embebe en la página, y
   `src/utils/chatRetrieval.js` busca los fragmentos más relevantes según las
   palabras clave de la pregunta (sin conexión a internet ni modelo de IA).
+  Es bilingüe: en `/en/` arma la base en inglés y responde en inglés.
 - **Por qué no usa IA generativa**: usar un modelo como Gemini de forma
   segura requiere esconder una API key en un backend, y GitHub Pages no
   puede ejecutar servidor. Ante esa disyuntiva, se optó por un asistente

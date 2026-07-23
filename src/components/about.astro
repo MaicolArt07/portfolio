@@ -1,12 +1,21 @@
 ---
 import { Icon } from 'astro-icon/components';
-import aboutData from '../data/about.json';
+import esAboutData from '../data/about.json';
+import enAboutData from '../data/en/about.json';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
+const aboutData = lang === 'en' ? enAboutData : esAboutData;
 
 const highlights = [
-  { icon: 'mdi:account-tie', label: 'Liderazgo de equipos' },
-  { icon: 'mdi:sitemap', label: 'Arquitectura de software' },
-  { icon: 'mdi:database-cog', label: 'Optimización de bases de datos' },
-  { icon: 'mdi:robot', label: 'Automatización con IA' },
+  { icon: 'mdi:account-tie', label: t(lang, 'about.highlight.leadership') },
+  { icon: 'mdi:sitemap', label: t(lang, 'about.highlight.architecture') },
+  { icon: 'mdi:database-cog', label: t(lang, 'about.highlight.dbOptimization') },
+  { icon: 'mdi:robot', label: t(lang, 'about.highlight.aiAutomation') },
 ];
 
 function highlight(text: string, terms: string[]) {
@@ -24,10 +33,10 @@ const paragraphsHtml = aboutData.paragraphs.map((p) => highlight(p, aboutData.hi
   <div class="container mx-auto">
     <div class="about-header mb-12">
       <h2 class="text-3xl md:text-4xl font-heading font-bold text-maintext mb-2 flex items-center gap-4">
-        <span class="text-accent">/</span> Sobre mí
+        <span class="text-accent">/</span> {t(lang, 'about.title')}
       </h2>
       <p class="text-subtext font-body text-sm max-w-md">
-        Quién soy y cómo trabajo
+        {t(lang, 'about.subtitle')}
       </p>
     </div>
 

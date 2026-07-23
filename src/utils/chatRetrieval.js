@@ -2,7 +2,8 @@
 // the visitor's question against the pre-built knowledge base (see
 // chatKnowledge.js) by keyword overlap, plus a small set of canned intents
 // (greeting/thanks/who-are-you) so the chat doesn't feel broken on the most
-// common non-informational messages.
+// common non-informational messages. Bilingual (es/en): canned replies and
+// trigger phrases are picked based on the active page language.
 
 // Common Spanish/English function words that would otherwise pollute
 // scoring — without this, long prose chunks (bio, job achievements) win on
@@ -42,15 +43,24 @@ function stemsOf(text) {
     .map(stem);
 }
 
-const GREETINGS = ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'hi', 'hello', 'hey', 'que tal'];
-const THANKS = ['gracias', 'muchas gracias', 'thank you', 'thanks'];
-const WHO_ARE_YOU = [
-  'quien sos', 'quien eres', 'que eres', 'como te llamas',
-  'eres un bot', 'sos un bot', 'eres una ia', 'sos una ia', 'eres ia',
-];
-
-const NO_INFO_REPLY =
-  'No tengo información suficiente sobre ese tema dentro de este portfolio. Puedo contarte sobre experiencia profesional, tecnologías, proyectos, educación, certificaciones o cómo contactarme.';
+const PHRASES = {
+  es: {
+    greetings: ['hola', 'buenas', 'buenos dias', 'buenas tardes', 'buenas noches', 'que tal'],
+    thanks: ['gracias', 'muchas gracias'],
+    whoAreYou: [
+      'quien sos', 'quien eres', 'que eres', 'como te llamas',
+      'eres un bot', 'sos un bot', 'eres una ia', 'sos una ia', 'eres ia',
+    ],
+  },
+  en: {
+    greetings: ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'],
+    thanks: ['thank you', 'thanks'],
+    whoAreYou: [
+      'who are you', 'what are you', "what's your name", 'whats your name',
+      'are you a bot', 'are you an ai',
+    ],
+  },
+};
 
 // Word-boundary matching — a naive `.includes('hi')` would false-positive
 // inside unrelated words like "hiciste".
@@ -93,37 +103,38 @@ function scoreChunks(chunks, query, history) {
 }
 
 /**
+ * @param {object[]} chunks Knowledge base chunks (already in the target language)
+ * @param {string} query The visitor's question
+ * @param {{role: string, content: string}[]} history Prior conversation turns
+ * @param {{lang?: 'es'|'en', replies: Record<string,string>}} options
+ *   `replies` supplies the canned strings (from src/i18n/ui.ts) for:
+ *   whoAreYouReply, thanksReply, greetingReply, noInfoReply.
  * @returns {{ text: string, sources: {type: string, name: string}[] }}
  */
-export function answerQuestion(chunks, query, history = []) {
+export function answerQuestion(chunks, query, history = [], options = {}) {
+  const lang = options.lang === 'en' ? 'en' : 'es';
+  const replies = options.replies || {};
+  const phrases = PHRASES[lang];
+
   const normalizedQuery = normalize(query).trim();
   const wordCount = stemsOf(query).length;
 
-  if (includesPhrase(normalizedQuery, WHO_ARE_YOU)) {
-    return {
-      text: 'Soy un asistente que responde preguntas sobre la experiencia, habilidades y proyectos de Maicol Arteaga, usando únicamente la información publicada en este portfolio.',
-      sources: [],
-    };
+  if (includesPhrase(normalizedQuery, phrases.whoAreYou)) {
+    return { text: replies.whoAreYouReply || '', sources: [] };
   }
 
-  if (includesPhrase(normalizedQuery, THANKS)) {
-    return {
-      text: '¡De nada! Si tenés otra pregunta sobre mi experiencia, tecnologías o proyectos, con gusto te respondo.',
-      sources: [],
-    };
+  if (includesPhrase(normalizedQuery, phrases.thanks)) {
+    return { text: replies.thanksReply || '', sources: [] };
   }
 
-  if (includesPhrase(normalizedQuery, GREETINGS) && wordCount <= 5) {
-    return {
-      text: 'Hola. Puedo contarte sobre mi experiencia profesional, tecnologías, proyectos, educación o cómo contactarme. ¿Qué te gustaría saber?',
-      sources: [],
-    };
+  if (includesPhrase(normalizedQuery, phrases.greetings) && wordCount <= 5) {
+    return { text: replies.greetingReply || '', sources: [] };
   }
 
   const relevant = scoreChunks(chunks, query, history);
 
   if (!relevant.length) {
-    return { text: NO_INFO_REPLY, sources: [] };
+    return { text: replies.noInfoReply || '', sources: [] };
   }
 
   return {

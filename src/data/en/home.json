@@ -1,0 +1,74 @@
+{
+  "name": "Maicol Arteaga",
+  "photoUrl": "",
+  "role": "Fullstack Developer & Systems Engineer",
+  "specialties": ["Laravel", "Livewire", "PHP", "MySQL", "SQL Server", "Software Architecture"],
+  "intro": "Systems Engineer with experience leading teams and building custom web platforms with Laravel, Livewire, and relational databases. Focused on architecture, automation, and performance optimization.",
+  "introHtml": "Systems Engineer with experience leading teams and building custom web platforms with <span class='text-white font-bold'>Laravel</span>, <span class='text-white font-bold'>Livewire</span>, and relational databases. Focused on <span class='text-white font-bold'>architecture</span>, <span class='text-white font-bold'>automation</span>, and performance <span class='text-white font-bold'>optimization</span>.",
+  "webpageTitle": "Maicol Arteaga | Fullstack Developer",
+  "resumeUrl": "cv-maicol-arteaga.pdf",
+
+  "_comment": "Add your social links below. Leave the 'url' empty to hide the icon. Set 'showInContact' to true or false to control if it appears in the Contact section.",
+  "socials": [
+    {
+      "name": "GitHub",
+      "url": "",
+      "icon": "mdi:github",
+      "showInContact": true
+    },
+    {
+      "name": "LinkedIn",
+      "url": "https://linkedin.com/in/maicolerickarteaga",
+      "icon": "mdi:linkedin",
+      "showInContact": true
+    },
+    {
+      "name": "Leetcode",
+      "url": "#",
+      "icon": "devicon-plain:leetcode",
+      "showInContact": false
+    },
+    {
+      "name": "Behance",
+      "url": "#",
+      "icon": "devicon-plain:behance",
+      "showInContact": false
+    },
+    {
+      "name": "Email",
+      "url": "mailto:maicolarteaga0711@gmail.com",
+      "icon": "mdi:email",
+      "showInContact": true
+    },
+    {
+      "name": "Whatsapp",
+      "url": "https://wa.me/59163568888",
+      "icon": "mdi:whatsapp",
+      "showInContact": true
+    },
+    {
+      "name": "Facebook",
+      "url": "#",
+      "icon": "mdi:facebook",
+      "showInContact": false
+    },
+    {
+      "name": "Messenger",
+      "url": "#",
+      "icon": "mdi:facebook-messenger",
+      "showInContact": false
+    },
+    {
+      "name": "Instagram",
+      "url": "#",
+      "icon": "mdi:instagram",
+      "showInContact": false
+    },
+    {
+      "name": "Twitter",
+      "url": "#",
+      "icon": "mdi:twitter",
+      "showInContact": false
+    }
+  ]
+}

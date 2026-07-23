@@ -1,45 +1,63 @@
 ---
 import { Icon } from 'astro-icon/components';
 import { buildKnowledgeBase } from '../utils/chatKnowledge.js';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang?: Lang;
+}
+
+const { lang = 'es' } = Astro.props;
 
 // Built once at build time from the same JSON files that power the rest of
 // the site (src/data/) — adding a project there makes it searchable here
 // automatically. Runs 100% in the visitor's browser afterwards: no backend,
 // no API key, no network call. See src/utils/chatRetrieval.js for the
 // matching logic.
-const knowledgeBase = buildKnowledgeBase();
+const knowledgeBase = buildKnowledgeBase(lang);
+
+const replies = {
+  whoAreYouReply: t(lang, 'chat.whoAreYouReply'),
+  thanksReply: t(lang, 'chat.thanksReply'),
+  greetingReply: t(lang, 'chat.greetingReply'),
+  noInfoReply: t(lang, 'chat.noInfoReply'),
+  processingError: t(lang, 'chat.processingError'),
+};
+
 // Escape "<" so a literal "</script>" inside any data string can't break out
-// of the embedding tag below.
+// of the embedding tags below.
 const knowledgeBaseJson = JSON.stringify(knowledgeBase).replace(/</g, '\\u003c');
+const chatConfigJson = JSON.stringify({ lang, replies }).replace(/</g, '\\u003c');
 
 const suggestedQuestions = [
-  '¿Cuál es tu experiencia profesional?',
-  '¿Qué tecnologías manejás?',
-  '¿Qué proyectos has desarrollado?',
-  '¿Tenés experiencia con Laravel?',
-  '¿Qué bases de datos utilizás?',
-  '¿Cómo puedo contactarte?',
+  t(lang, 'chat.suggested1'),
+  t(lang, 'chat.suggested2'),
+  t(lang, 'chat.suggested3'),
+  t(lang, 'chat.suggested4'),
+  t(lang, 'chat.suggested5'),
+  t(lang, 'chat.suggested6'),
 ];
 ---
 
 <div id="chat-widget">
   <script type="application/json" id="chat-knowledge-data" is:inline set:html={knowledgeBaseJson} />
-    <button id="chat-toggle" aria-label="Abrir asistente virtual" class="group">
+  <script type="application/json" id="chat-config-data" is:inline set:html={chatConfigJson} />
+    <button id="chat-toggle" aria-label={t(lang, 'chat.openAriaLabel')} class="group">
       <Icon name="mdi:robot-happy-outline" class="w-6 h-6" />
-      <span class="chat-toggle-label">Consulta mi experiencia</span>
+      <span class="chat-toggle-label">{t(lang, 'chat.toggleLabel')}</span>
     </button>
 
     <div id="chat-panel" class="hidden">
       <header>
         <div class="flex items-center gap-2">
           <Icon name="mdi:robot-happy-outline" class="w-5 h-5 text-accent" />
-          <span class="font-heading font-bold text-maintext text-sm">Asistente virtual</span>
+          <span class="font-heading font-bold text-maintext text-sm">{t(lang, 'chat.headerTitle')}</span>
         </div>
         <div class="flex items-center gap-1">
-          <button id="chat-clear" aria-label="Limpiar conversación" title="Limpiar conversación">
+          <button id="chat-clear" aria-label={t(lang, 'chat.clearTitle')} title={t(lang, 'chat.clearTitle')}>
             <Icon name="mdi:broom" class="w-4 h-4" />
           </button>
-          <button id="chat-close" aria-label="Cerrar" title="Cerrar">
+          <button id="chat-close" aria-label={t(lang, 'chat.closeTitle')} title={t(lang, 'chat.closeTitle')}>
             <Icon name="mdi:close" class="w-4 h-4" />
           </button>
         </div>
@@ -47,7 +65,7 @@ const suggestedQuestions = [
 
       <div id="chat-messages">
         <div class="chat-bubble chat-bubble-assistant">
-          Hola. Soy el asistente virtual de este portfolio. Puedes preguntarme sobre experiencia profesional, habilidades, tecnologías y proyectos desarrollados.
+          {t(lang, 'chat.welcomeMessage')}
         </div>
       </div>
 
@@ -65,10 +83,10 @@ const suggestedQuestions = [
           type="text"
           autocomplete="off"
           maxlength="1000"
-          placeholder="Escribe tu pregunta..."
-          aria-label="Tu pregunta"
+          placeholder={t(lang, 'chat.inputPlaceholder')}
+          aria-label={t(lang, 'chat.inputAriaLabel')}
         />
-        <button type="submit" id="chat-send" aria-label="Enviar">
+        <button type="submit" id="chat-send" aria-label={t(lang, 'chat.sendAriaLabel')}>
           <Icon name="mdi:send" class="w-4 h-4" />
         </button>
       </form>
@@ -351,6 +369,8 @@ const suggestedQuestions = [
 
     const knowledgeDataEl = document.getElementById('chat-knowledge-data');
     const knowledgeBase = JSON.parse(knowledgeDataEl.textContent);
+    const configEl = document.getElementById('chat-config-data');
+    const chatConfig = JSON.parse(configEl.textContent);
 
     const toggleBtn = document.getElementById('chat-toggle');
     const panel = document.getElementById('chat-panel');
@@ -436,13 +456,13 @@ const suggestedQuestions = [
         typingEl.remove();
 
         try {
-          const { text: answer, sources } = answerQuestion(knowledgeBase, text, priorHistory);
+          const { text: answer, sources } = answerQuestion(knowledgeBase, text, priorHistory, chatConfig);
           appendBubble('assistant', answer);
           appendSources(sources);
           history.push({ role: 'assistant', content: answer });
           history = history.slice(-6);
         } catch (err) {
-          showError('No fue posible procesar la consulta.');
+          showError(chatConfig.replies?.processingError || 'Error');
         } finally {
           sendBtn.disabled = false;
         }
